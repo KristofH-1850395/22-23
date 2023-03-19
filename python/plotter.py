@@ -1,11 +1,10 @@
 #this file will plot all the data in the data folder in a log log plot
-
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
 # Set the directory path where the CSV files are located
-dir_path = 'C:/Users/kheyn/Documents/uhasselt/eindproject/22-23/data'
+dir_path = 'D:/UHasselt/eindwerk/bachelor_kristof_heyndels_fysica_22_23/data'
 
 # Get all CSV files in the directory
 csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
