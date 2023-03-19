@@ -2,6 +2,8 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy.optimize import curve_fit
 
 # Set the directory path where the CSV files are located
 dir_path = 'D:/UHasselt/eindwerk/bachelor_kristof_heyndels_fysica_22_23/data'
@@ -21,6 +23,19 @@ for csv_file in csv_files:
     # add the dataframe to the plot
     plt.plot(data['t'], data['density'], label=csv_file)
 
+
+#plot line with slope -0.1598 in log log scale
+
+#create linespace for x values
+x = np.linspace(0, 1e2, 1000)
+#calculate y values
+y = -0.1598*x-0.375
+x_exp = np.exp(x)
+y_exp = np.exp(y)
+#plot the line
+plt.plot(x_exp, y_exp, label='slope -0.1598')
+
+
 # Plot the data
 plt.xlabel('t')
 plt.ylabel('density')
@@ -28,7 +43,9 @@ plt.title('All CSV Data')
 
 #set the axis to log scale
 plt.xscale('log')
+plt.xlim(1e0, 1e2)
 plt.yscale('log')
+plt.ylim(1e-1, 1)
 
 #add a legend
 plt.legend()

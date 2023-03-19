@@ -10,11 +10,11 @@ def main():
     
 def find_critical_exponent():
     z = 3.29785 # expected critical exponent
-    T = int(10**5) # simulation time
+    T = int(10**3) # simulation time
     l = 2 # infection rate
     data_dict = {}
 
-    I = 100  #ensemble size
+    I = 1000  #ensemble size
     # create ensemble
     for i in range(I):
         print(f"running simulation {i + 1} of {I}")
