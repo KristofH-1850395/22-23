@@ -23,6 +23,21 @@ public:
   }
 };
 
+void writeData(vector<pair<double, double>> data, float infectionRate) {
+  // write avg_data to output.csv
+  ofstream output("lambda_" + to_string(infectionRate) + ".csv");
+
+  cout << "constructing string" << endl;
+  string outputString = "t,density\n";
+  for (int i = 0; i < data.size(); i++) {
+    outputString += std::to_string(data[i].first);
+    outputString += ",";
+    outputString += std::to_string(data[i].second);
+    outputString += "\n";
+  }
+  output << outputString;
+}
+
 vector<pair<double, double>> averageData(std::vector<dictItem> dataDict) {
   vector<pair<double, double>> averageData;
   // loop over each data point
@@ -93,28 +108,7 @@ void findCriticalExponent(int simTime, float infectionRate, int ensembleSize) {
   }
 
   vector<pair<double, double>> avg_data = averageData(dataDict);
-  // write avg_data to output.csv
-  ofstream output("output.csv");
-  cout << "contrsucting string" << endl;
-  string outputString = "";
-  for (int i = 0; i < avg_data.size(); i++) {
-    outputString += std::to_string(avg_data[i].first);
-    outputString += ",";
-    outputString += std::to_string(avg_data[i].second);
-    outputString += "\n";
-  }
-  output << outputString;
-
-  // ofstream output("output.csv");
-  // string outputString = "";
-  // cout << "contrsucting string" << endl;
-  // for (int i = 0; i < dataDict[0].getValues().size(); i += 1) {
-  //   outputString += std::to_string(dataDict[0].getValues()[i].first);
-  //   outputString += ",";
-  //   outputString += std::to_string(dataDict[0].getValues()[i].second);
-  //   outputString += "\n";
-  // }
-  // output << outputString;
+  writeData(avg_data, infectionRate);
 }
 
 int main(int argc, char *argv[]) {

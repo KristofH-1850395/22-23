@@ -10,11 +10,12 @@ dir_path = 'D:/UHasselt/eindwerk/bachelor_kristof_heyndels_fysica_22_23/data'
 csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
 
 # Loop through all the CSV files and append the data to the DataFrame
-for csv_file in csv_files:
+for csv_file in csv_files:        
     # Create an empty DataFrame to store all the data
     data = pd.DataFrame()
 
     csv_path = os.path.join(dir_path, csv_file)
+    print(csv_path)
     data = pd.read_csv(csv_path)
 
     # add the dataframe to the plot
