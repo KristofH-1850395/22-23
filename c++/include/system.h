@@ -1,7 +1,7 @@
 #include <vector>
 class System {
 public:
-  System(float infectionRate);
+  System(float infectionRate, int systemSize);
   void create(int x, int y);
   void annihilate(int x);
   // getters and setters for vars

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <cmath>
 using namespace std;
 
 class dictItem {
@@ -24,10 +25,8 @@ public:
 };
 
 void writeData(vector<pair<double, double>> data, float infectionRate) {
-  // write avg_data to output.csv
+   // write avg_data to output.csv
   ofstream output("lambda_" + to_string(infectionRate) + ".csv");
-
-  cout << "constructing string" << endl;
   string outputString = "t,density\n";
   for (int i = 0; i < data.size(); i++) {
     outputString += std::to_string(data[i].first);
@@ -47,7 +46,17 @@ vector<pair<double, double>> averageData(std::vector<dictItem> dataDict) {
     for (int j = 0; j < dataDict.size(); j++) {
       average += dataDict[j].getValues()[i].second;
     }
+
+    // report progress every 1000 data points
+    if (i % 1000 == 0) {
+      cout << "averaging data point " << i << " of "
+           << dataDict[0].getValues().size() << endl;
+    }
+
+    // calculate the average
     average /= dataDict.size();
+
+    // add the average to the averageData vector
     averageData.push_back(
         std::make_pair(dataDict[0].getValues()[i].first, average));
   }
@@ -58,20 +67,29 @@ vector<pair<double, double>> averageData(std::vector<dictItem> dataDict) {
 void mcStep(System &system) {
   // choose a random index between 0 and latticeSize
   int x = rand() % system.getLatticeSize();
+
   // choose a random float between 0 and 1
   float r = (float)rand() / (float)RAND_MAX;
+
   if (r <= system.getCreationProbability()) {
+
     // choose a random d that is either 1 or -1
     int d = rand() % 2;
     if (d == 0) {
       d = -1;
     }
+
+    // calculate the y coordinate
     int y = x + d;
+
+    // periodic boundary conditions
     if (y < 0) {
       y = system.getLatticeSize() - 1;
     } else if (y >= system.getLatticeSize()) {
       y = 0;
     }
+
+    // attempt to create a particle
     system.create(x, y);
   } else {
     system.annihilate(x);
@@ -82,17 +100,23 @@ void findCriticalExponent(int simTime, float infectionRate, int ensembleSize) {
   std::vector<dictItem> dataDict;
   for (int i = 0; i < ensembleSize; i++) {
     cout << "running simulation " << i + 1 << " of " << ensembleSize << endl;
+
     // init the system
-    System system(infectionRate);
-    // define the duration of a MC step
+    float expectedCriticalExponent = 3.2975;
+    int systemSize = 2 * (int)pow(simTime, 1/expectedCriticalExponent) + 1;
+    System system(infectionRate, 100);
+
+    // define the duration of a MC step and set meassuring parameters
     double mcDuration = 1 / (system.getLatticeSize() * (1 + infectionRate));
     double time = 0;
-    double meassuringInterval = simTime * 0.0001;
+    double meassuringInterval = (0.1 * simTime) * mcDuration;
     double timeSinceMeassurement = 0;
 
+    // add the initial density to the dataDict
     dataDict.push_back(dictItem(std::vector<std::pair<float, float>>()));
     dataDict[i].addValue(std::make_pair(time, system.getDensity()));
 
+    // run the simulation
     while (time < simTime) {
       if (system.getDensity() != 0) {
         mcStep(system);
@@ -107,7 +131,10 @@ void findCriticalExponent(int simTime, float infectionRate, int ensembleSize) {
     }
   }
 
+  // average the data and write to file  
+  cout << "averaging data" << endl; 
   vector<pair<double, double>> avg_data = averageData(dataDict);
+  cout << "writing data" << endl; 
   writeData(avg_data, infectionRate);
 }
 
