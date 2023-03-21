@@ -1,11 +1,16 @@
-#this file will plot all the data in the data folder in a log log plot
+#this file will plot all the data in the data folder in a scaled log log plot
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plotter():
-    # get the path of the data folder
+def scale_plotter():
+    #defining parameters
+    alpha = -0.16
+    lambda_critical = 3.2978
+    nu_parallel = 1.73383 #this is our guess
+
+     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     dir_path = os.path.join(root_path, 'data')
 
@@ -17,23 +22,21 @@ def plotter():
         # Create an empty DataFrame to store all the data
         data = pd.DataFrame()
 
+        #define lambda from file name
+        simulated_lambda = float(csv_file[7:15])
+        print(simulated_lambda)
+
         csv_path = os.path.join(dir_path, csv_file)
         data = pd.read_csv(csv_path)
 
+        #scale the data
+        x_axis = data['t'] * (simulated_lambda - lambda_critical)**nu_parallel
+        y_axis = data['density']*data['t']**alpha
+
+        print(f"for lambda = {simulated_lambda} we get data: \n {x_axis} \n {y_axis}")
+
         # add the dataframe to the plot
-        plt.plot(data['t'], data['density'], label=csv_file)
-
-
-    #plot line with slope -0.1598 in log log scale
-    #create linespace for x values
-    x = np.linspace(0, 1e2, 1000)
-    #calculate y values
-    y = -0.16*x-0.375
-    x_exp = np.exp(x)
-    y_exp = np.exp(y)
-    #plot the line
-    plt.plot(x_exp, y_exp, label='slope -0.16')
-
+        plt.plot(x_axis, y_axis, label=csv_file)
 
     # Plot the data
     plt.xlabel('t')
@@ -42,9 +45,9 @@ def plotter():
 
     #set the axis to log scale
     plt.xscale('log')
-    plt.xlim(1e0, 1e2)
+    plt.xlim(1e-3, 1e1)
     plt.yscale('log')
-    plt.ylim(1e-1, 1)
+    plt.ylim(1e-3, 1e1)
 
     #add a legend
     plt.legend()
@@ -52,5 +55,6 @@ def plotter():
     #show the plot
     plt.show()
 
+
 if __name__ == '__main__':
-    plotter()
+    scale_plotter()
