@@ -99,7 +99,10 @@ void mcStep(System &system) {
 void findCriticalExponent(int simTime, float infectionRate, int ensembleSize) {
   std::vector<dictItem> dataDict;
   for (int i = 0; i < ensembleSize; i++) {
-    cout << "running simulation " << i + 1 << " of " << ensembleSize << endl;
+    // report progress every 250 simulations
+    if (i % 250 == 0) {
+      cout << "running simulation " << i + 1 << " of " << ensembleSize << endl;
+    }
 
     // init the system
     float expectedCriticalExponent = 3.2975;
@@ -139,12 +142,18 @@ void findCriticalExponent(int simTime, float infectionRate, int ensembleSize) {
 }
 
 int main(int argc, char *argv[]) {
+  std::cout << "executing program" << std::endl;
+  
   // int simtime = the first argument
   int simTime = std::atoi(argv[1]);
+
   // float infectionRate = the second argument
   float infectionRate = std::atof(argv[2]);
+
+
   // int ensembleSize = the third argument
   int ensembleSize = std::atoi(argv[3]);
   findCriticalExponent(simTime, infectionRate, ensembleSize);
+
   return 0;
 }

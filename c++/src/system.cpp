@@ -31,25 +31,3 @@ void System::annihilate(int x) {
 void System::calculateDensity() {
   this->density = (float)this->particleCount / (float)this->latticeSize;
 }
-
-// getters and setters for vars
-void System::setInfectionRate(float infectionRate) {
-  this->infectionRate = infectionRate;
-}
-float System::getInfectionRate() { return this->infectionRate; }
-
-void System::setDensity(float density) { this->density = density; }
-float System::getDensity() { return this->density; }
-
-void System::setCreationProbability(float creationProbability) {
-  this->creationProbability = creationProbability;
-}
-float System::getCreationProbability() { return this->creationProbability; }
-
-void System::setLatticeSize(int latticeSize) {
-  this->latticeSize = latticeSize;
-}
-int System::getLatticeSize() { return this->latticeSize; }
-
-void System::setLattice(std::vector<int> lattice) { this->lattice = lattice; }
-std::vector<int> System::getLattice() { return this->lattice; }

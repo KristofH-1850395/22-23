@@ -1,20 +1,25 @@
 #include <vector>
+
 class System {
 public:
   System(float infectionRate, int systemSize);
   void create(int x, int y);
   void annihilate(int x);
-  // getters and setters for vars
-  void setInfectionRate(float infectionRate);
-  float getInfectionRate();
-  void setDensity(float density);
-  float getDensity();
-  void setCreationProbability(float creationProbability);
-  float getCreationProbability();
-  void setLatticeSize(int latticeSize);
-  int getLatticeSize();
-  void setLattice(std::vector<int> lattice);
-  std::vector<int> getLattice();
+
+  void setInfectionRate(float infectionRate) {this->infectionRate = infectionRate;}
+  float getInfectionRate() { return this->infectionRate; }
+
+  void setDensity(float density) { this->density = density; }
+  float getDensity() { return this->density; }
+
+  void setCreationProbability(float creationProbability) {this->creationProbability = creationProbability;}
+  float getCreationProbability() { return this->creationProbability; }
+
+  void setLatticeSize(int latticeSize) {this->latticeSize = latticeSize;}
+  int getLatticeSize() { return this->latticeSize; }
+
+  void setLattice(std::vector<int> lattice) { this->lattice = lattice; }
+  std::vector<int> getLattice() { return this->lattice; }
 
 private:
   void calculateDensity();
