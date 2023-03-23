@@ -30,20 +30,25 @@ def scale_plotter():
         data = pd.read_csv(csv_path)
 
         # scale the data
-        x_axis = data['t'] * (simulated_lambda - lambda_critical)**nu_parallel
-        y_axis = data['density'] * (data['t'] ** alpha)
+        x_axis =  []
+        for t in data['t']:
+            x_axis.append(t * (simulated_lambda - lambda_critical)**nu_parallel)
+
+        y_axis = []
+        for density in data['density']:
+            y_axis.append(density * (t ** alpha))
 
         # add the dataframe to the plot
         plt.plot(x_axis, y_axis, label=csv_file)
 
     # Plot the data
-    plt.xlabel('t')
-    plt.ylabel('density')
+    plt.xlabel('t * (lambda - lambda_critical)^nu_parallel')
+    plt.ylabel('density * t^alpha')
     plt.title('All CSV Data')
 
     #set the axis to log scale
     plt.xscale('log')
-    plt.xlim(1e-4, 1e1)
+    plt.xlim(1e-2, 1e2)
     plt.yscale('log')
     plt.ylim(1e-3, 1e0)
 

@@ -100,8 +100,8 @@ void findCriticalExponent(int simTime, float infectionRate, int ensembleSize) {
   std::vector<dictItem> dataDict;
   for (int i = 0; i < ensembleSize; i++) {
     // report progress every 250 simulations
-    if (i % 250 == 0) {
-      cout << "running simulation " << i + 1 << " of " << ensembleSize << endl;
+    if (i % 1000 == 0) {
+      cout << "running simulation " << i << " of " << ensembleSize << endl;
     }
 
     // init the system
