@@ -48,9 +48,9 @@ def scale_plotter():
 
     #set the axis to log scale
     plt.xscale('log')
-    plt.xlim(1e-2, 1e2)
+    plt.xlim(1e-5, 1e-1)
     plt.yscale('log')
-    plt.ylim(1e-3, 1e0)
+    plt.ylim(1e-4, 1e0)
 
     #add a legend
     plt.legend()
