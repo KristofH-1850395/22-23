@@ -1,4 +1,3 @@
-#this file will plot all the data in the data folder in a scaled log log plot
 import os
 import pandas as pd
 import matplotlib.pyplot as plt

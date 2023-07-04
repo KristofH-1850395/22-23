@@ -5,8 +5,6 @@ from matplotlib.widgets import TextBox, Button
 from matplotlib.gridspec import GridSpec
 
 def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
-    # defining parameters
-
      # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     dir_path = os.path.join(root_path, 'data')
@@ -34,12 +32,12 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
         #loop through the data and scale it
         for i in range(len(data)):
             t = data[i][0]
-            density = data[i][1]
+            density = data[i][1]            
 
             if t == 0:
                 continue
 
-            x_axis.append(t * abs(simulated_lambda - lambda_critical)**nu_parallel)
+            x_axis.append(t**(1/nu_parallel) * (simulated_lambda - lambda_critical))
             y_axis.append(density * (t ** alpha))
 
         # calculate delta_lambda
@@ -48,28 +46,22 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
         multiple = int(delta_lambda/0.0128)
         #label the plot with the multiple
         plot_label = str(multiple) + ' * 0.0128'
-
-        #determine color of the plot
-        if delta_lambda < 0:
-            color = 'r'
-        elif delta_lambda > 0:
-            color = 'g'
-        else:
-            color = 'b'
         
         # add the dataframe to the plot
-        ax.plot(x_axis, y_axis, label=plot_label, color=color)
+        ax.plot(x_axis, y_axis, label=plot_label)
 
     # Plot the data
-    ax.set_xlabel('t * (lambda - lambda_critical)^nu_parallel')
+    ax.set_xlabel('t**(1 / nu_parallel) * (simulated_lambda - lambda_critical)')
     ax.set_ylabel('density * t^alpha')
     ax.set_title('All CSV Data')
 
     #set the axis to log scale
-    ax.set_xscale('log')
-    ax.set_yscale('log')
+    ax.set_xscale('linear')
+    ax.set_xlim(-7, 7)
+    ax.set_yscale('linear')
+    ax.set_ylim(0, 1.2)
 
-    #add a legend to ax
+    #add a legend
     ax.legend()
 
     #show the plot
@@ -77,7 +69,7 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
 
 if __name__ == '__main__':
-    # defining parameters
+     # defining parameters
     alpha = 0.15947
     nu_parallel = 1.73383 #this is our guess
     lambda_critical = 3.29785
