@@ -69,7 +69,7 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
 
 if __name__ == '__main__':
-     # defining parameters
+    # defining parameters
     alpha = 0.15947
     nu_parallel = 1.73383 #this is our guess
     lambda_critical = 3.29785

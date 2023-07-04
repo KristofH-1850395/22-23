@@ -1,12 +1,11 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.widgets import TextBox, Button
+from matplotlib.gridspec import GridSpec
 
-def scale_plotter():
+def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
     # defining parameters
-    alpha = 0.15947
-    lambda_critical = 3.29785
-    nu_parallel = 1.73383 #this is our guess
 
      # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -31,7 +30,7 @@ def scale_plotter():
         data = data.to_numpy()
         x_axis = []
         y_axis = []
-        
+
         #loop through the data and scale it
         for i in range(len(data)):
             t = data[i][0]
@@ -52,30 +51,64 @@ def scale_plotter():
 
         #determine color of the plot
         if delta_lambda < 0:
-            color = 'r'
+            color = '#a31621'
         elif delta_lambda > 0:
-            color = 'g'
+            color = '#4e8098'
         else:
             color = 'b'
         
         # add the dataframe to the plot
-        plt.plot(x_axis, y_axis, label=plot_label, color=color)
+        ax.plot(x_axis, y_axis, label=plot_label, color=color)
 
     # Plot the data
-    plt.xlabel('t * (lambda - lambda_critical)^nu_parallel')
-    plt.ylabel('density * t^alpha')
-    plt.title('All CSV Data')
+    ax.set_xlabel('t * (lambda - lambda_critical)^nu_parallel')
+    ax.set_ylabel('density * t^alpha')
+    ax.set_title('All CSV Data')
 
     #set the axis to log scale
-    plt.xscale('log')
-    plt.yscale('log')
+    ax.set_xscale('log')
+    ax.set_yscale('log')
 
-    #add a legend
-    plt.legend()
+    #add a legend to ax
+    ax.legend()
 
     #show the plot
     plt.show()
 
 
 if __name__ == '__main__':
-    scale_plotter()
+    # defining parameters
+    alpha = 0.15947
+    nu_parallel = 1.73383 #this is our guess
+    lambda_critical = 3.29785
+
+    #create the figure and the axes
+    fig, ax = plt.subplots()
+    gs = GridSpec(6, 5, figure=fig)
+
+    #create the text box and the button
+    axbox_text_alpha = fig.add_axes([0.1, 0.05, 0.5, 0.025])
+    text_box_alpha = TextBox(axbox_text_alpha, "alpha")
+    text_box_alpha.set_val(alpha)
+
+    axbox_text_nu_parallel = fig.add_axes([0.1, 0.01, 0.5, 0.025])
+    text_box_nu_parallel = TextBox(axbox_text_nu_parallel, "nu_parallel")
+    text_box_nu_parallel.set_val(nu_parallel)
+
+    axbox_button = fig.add_axes([0.65, 0.01, 0.1, 0.075])
+    button = Button(axbox_button, "Update")
+
+    #define the function that will be called when the button is pressed
+    def submit(expression):
+        if expression.inaxes == axbox_button: # Make sure the button was pressed
+            ax.lines.clear()
+            scale_plotter(lambda_critical, float(text_box_alpha.text), float(text_box_nu_parallel.text), ax)
+
+    # Connect the button event with the function submit
+    text_box_alpha.disconnect(text_box_alpha.disconnect_events) # Disconnect all other events
+    text_box_alpha.connect_event('button_press_event', submit) # Connect the button event
+
+    text_box_nu_parallel.disconnect(text_box_nu_parallel.disconnect_events) # Disconnect all other events
+    text_box_nu_parallel.connect_event('button_press_event', submit) # Connect the button event
+    
+    scale_plotter(lambda_critical, alpha, nu_parallel, ax)

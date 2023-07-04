@@ -7,7 +7,7 @@ import numpy as np
 def plotter():
     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    dir_path = os.path.join(root_path, 'data')
+    dir_path = os.path.join(root_path, 'data/finite_size')
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -42,7 +42,7 @@ def plotter():
 
     #set the axis to log scale
     plt.xscale('log')
-    plt.xlim(1e0, 1e3)
+    plt.xlim(1e0, 1e2)
     plt.yscale('log')
     plt.ylim(1e-1, 1)
 
