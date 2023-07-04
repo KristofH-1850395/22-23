@@ -25,9 +25,9 @@ public:
   }
 };
 
-void writeData(vector<pair<double, double>> data, float infectionRate) {
-   // write avg_data to output.csv
-  ofstream output("lambda_" + to_string(infectionRate) + ".csv");
+void writeData(vector<pair<double, double>> data, float infectionRate, string path) {
+  // write avg_data to output.csv
+  ofstream output(path + "lambda_" + to_string(infectionRate) + ".csv");
   string outputString = "t,density\n";
   for (int i = 0; i < data.size(); i++) {
     outputString += std::to_string(data[i].first);
@@ -39,7 +39,7 @@ void writeData(vector<pair<double, double>> data, float infectionRate) {
 }
 
 vector<pair<double, double>> averageData(std::vector<dictItem> dataDict) {
-  vector<pair<double, double>> averageData=vector(dataDict[0].getValues().size(),make_pair<double,double>(0,0));
+  vector<pair<double, double>> averageData=vector<pair<double,double>>(dataDict[0].getValues().size(),make_pair<double,double>(0,0));
   // loop over each data point
   #pragma omp parallel for schedule(dynamic) num_threads(8)
   for (int i = 0; i < dataDict[0].getValues().size(); i++) {
@@ -101,23 +101,24 @@ void mcStep(System &system) {
   }
 }
 
-void findCriticalExponent(int simTime, float infectionRate, int ensembleSize) {
+void findCriticalExponent(int simTime, float infectionRate, int ensembleSize, string path) {
   std::vector<dictItem> dataDict;
   for (int i = 0; i < ensembleSize; i++) {
     // report progress every 100 simulations
     if (i % 100 == 0) {
-      cout << "running simulation " << i << " of " << ensembleSize << endl;
+      cout << "for infectionate: " << infectionRate <<  " --- running simulation " << i << " of " << ensembleSize << endl;
     }
 
     // init the system
     float expectedCriticalExponent = 3.29785;
-    int systemSize = 2 * (int)pow(simTime, 1/expectedCriticalExponent) + 1;
-    System system(infectionRate, 100);
+    // int systemSize = 2 * (int)pow(simTime, 1/expectedCriticalExponent) + 1;
+    int systemSize = 1000;
+    System system(infectionRate, systemSize);
 
     // define the duration of a MC step and set meassuring parameters
     double mcDuration = 1 / (system.getLatticeSize() * (1 + infectionRate));
     double time = 0;
-    double meassuringInterval = (simTime * 0.1) * mcDuration;
+    double meassuringInterval = 0.25; // we don't want too many data points
     double timeSinceMeassurement = 0;
 
     // add the initial density to the dataDict
@@ -143,7 +144,7 @@ void findCriticalExponent(int simTime, float infectionRate, int ensembleSize) {
   cout << "averaging data" << endl; 
   vector<pair<double, double>> avg_data = averageData(dataDict);
   cout << "writing data" << endl; 
-  writeData(avg_data, infectionRate);
+  writeData(avg_data, infectionRate, path);
 }
 
 int main(int argc, char *argv[]) {
@@ -159,12 +160,16 @@ int main(int argc, char *argv[]) {
   // int ensembleSize = the third argument
   int ensembleSize = std::atoi(argv[3]);
 
+  // string outputPath = the fourth argument
+  string outputPath = argv[4];
 
-  // run the simulation for infectionRate +- 0.1
-  // for (float i = infectionRate - (0.0015 * 5); i <= infectionRate + (0.0015 * 5); i += 0.0015) {
-  //   findCriticalExponent(simTime, i, ensembleSize);
-  // }
-  findCriticalExponent(simTime, infectionRate, ensembleSize);
+  // run the simulation for infectionRate +- a delta
+  double delta = 0.0128;
+  int range = 10;
+  for (double i = infectionRate - (delta * range); i <= infectionRate + (delta * range); i += delta) {
+     findCriticalExponent(simTime, i, ensembleSize, outputPath);
+  }
+  // findCriticalExponent(simTime, infectionRate, ensembleSize, outputPath);
 
   return 0;
 }

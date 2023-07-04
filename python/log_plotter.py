@@ -42,7 +42,7 @@ def plotter():
 
     #set the axis to log scale
     plt.xscale('log')
-    plt.xlim(1e0, 1e2)
+    plt.xlim(1e0, 1e3)
     plt.yscale('log')
     plt.ylim(1e-1, 1)
 
