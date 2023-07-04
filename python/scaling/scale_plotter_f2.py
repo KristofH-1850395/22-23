@@ -38,6 +38,9 @@ def scale_plotter():
             t = data[i][0]
             density = data[i][1]
 
+            if t == 0:
+                continue
+
             x_axis.append(t * abs(simulated_lambda - lambda_critical)**nu_parallel)
             y_axis.append(density * (t ** alpha))
 
@@ -66,9 +69,7 @@ def scale_plotter():
 
     #set the axis to log scale
     plt.xscale('log')
-    plt.xlim(1e-2, 1e2)
     plt.yscale('log')
-    plt.ylim(1e-1, 1e1)
 
     #add a legend
     plt.legend()

@@ -36,7 +36,10 @@ def scale_plotter():
         #loop through the data and scale it
         for i in range(len(data)):
             t = data[i][0]
-            density = data[i][1]
+            density = data[i][1]            
+
+            if t == 0:
+                continue
 
             x_axis.append(t**(1/nu_parallel) * (simulated_lambda - lambda_critical))
             y_axis.append(density * (t ** alpha))
