@@ -7,7 +7,7 @@ import numpy as np
 def plotter():
     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    dir_path = os.path.join(root_path, 'data/finite_size')
+    dir_path = os.path.join(root_path, 'data')
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -20,8 +20,11 @@ def plotter():
         csv_path = os.path.join(dir_path, csv_file)
         data = pd.read_csv(csv_path)
 
+        #get label from file name
+        label = r'$\lambda = $' + csv_file[7:14]
+
         # add the dataframe to the plot
-        plt.plot(data['t'], data['density'], label=csv_file)
+        plt.plot(data['t'], data['density'], label=label)
 
 
     #plot line with slope -0.1598 in log log scale
@@ -31,14 +34,23 @@ def plotter():
     y = -0.16*x-0.375
     x_exp = np.exp(x)
     y_exp = np.exp(y)
-    #plot the line
-    plt.plot(x_exp, y_exp, label='slope -0.16')
+    #plot the line in black
+    plt.plot(x_exp, y_exp, color='black', label=r'$y=-0.16x+b$')
 
 
     # Plot the data
     plt.xlabel('t')
-    plt.ylabel('density')
-    plt.title('All CSV Data')
+    plt.ylabel(r'$\rho(t)$')
+    plt.title('Density of the system as a function of time')
+
+    #set the size of the labels
+    plt.tick_params(axis='both', which='major', labelsize=12)
+    ax = plt.gca()
+    ax.xaxis.label.set_size(20)
+    ax.yaxis.label.set_size(20)
+    ax.title.set_size(30)
+
+    plt.legend(fontsize=16)
 
     #set the axis to log scale
     plt.xscale('log')

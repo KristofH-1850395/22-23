@@ -5,6 +5,8 @@ from matplotlib.widgets import TextBox, Button
 from matplotlib.gridspec import GridSpec
 
 def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
+    # defining parameters
+
      # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     dir_path = os.path.join(root_path, 'data')
@@ -32,12 +34,12 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
         #loop through the data and scale it
         for i in range(len(data)):
             t = data[i][0]
-            density = data[i][1]            
+            density = data[i][1]
 
             if t == 0:
                 continue
 
-            x_axis.append(t**(1/nu_parallel) * (simulated_lambda - lambda_critical))
+            x_axis.append(t * abs(simulated_lambda - lambda_critical)**nu_parallel)
             y_axis.append(density * (t ** alpha))
 
         # calculate delta_lambda
@@ -46,22 +48,33 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
         multiple = int(delta_lambda/0.0128)
         #label the plot with the multiple
         plot_label = str(multiple) + ' * 0.0128'
+
+        #determine color of the plot
+        if delta_lambda < 0:
+            color = '#a31621'
+        elif delta_lambda > 0:
+            color = '#4e8098'
+        else:
+            color = 'b'
         
         # add the dataframe to the plot
-        ax.plot(x_axis, y_axis, label=plot_label)
+        ax.plot(x_axis, y_axis, label=plot_label, color=color)
 
-    # Plot the data
-    ax.set_xlabel('t**(1 / nu_parallel) * (simulated_lambda - lambda_critical)')
-    ax.set_ylabel('density * t^alpha')
-    ax.set_title('All CSV Data')
+    # set the labels and title of the plot
+    ax.set_xlabel(r'$t \Delta^{\nu_{//}}$')
+    ax.set_ylabel(r'$\rho(t) t^\alpha$')
+    ax.set_title('Scaling Relation of the Density')
+
+    ax.tick_params(axis='both', which='major', labelsize=12)
+    ax.xaxis.label.set_size(20)
+    ax.yaxis.label.set_size(20)
+    ax.title.set_size(30)
 
     #set the axis to log scale
-    ax.set_xscale('linear')
-    ax.set_xlim(-7, 7)
-    ax.set_yscale('linear')
-    ax.set_ylim(0, 1.2)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
 
-    #add a legend
+    #add a legend to ax
     ax.legend()
 
     #show the plot
@@ -70,24 +83,27 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
 if __name__ == '__main__':
     # defining parameters
-    alpha = 0.15947
-    nu_parallel = 1.73383 #this is our guess
+    alpha = 0.16
+    nu_parallel = 1.7 #this is our guess
     lambda_critical = 3.29785
 
     #create the figure and the axes
     fig, ax = plt.subplots()
     gs = GridSpec(6, 5, figure=fig)
 
-    #create the text box and the button
-    axbox_text_alpha = fig.add_axes([0.1, 0.05, 0.5, 0.025])
-    text_box_alpha = TextBox(axbox_text_alpha, "alpha")
+    #create the text box and the button  
+    left, bottom, width, height = 0.125, 0.035, 0.04, 0.025
+    axbox_text_alpha = fig.add_axes([left, bottom, width, height])
+    text_box_alpha = TextBox(axbox_text_alpha, "alpha:   ")
     text_box_alpha.set_val(alpha)
 
-    axbox_text_nu_parallel = fig.add_axes([0.1, 0.01, 0.5, 0.025])
-    text_box_nu_parallel = TextBox(axbox_text_nu_parallel, "nu_parallel")
+    left, bottom, width, height = 0.125, 0.005, 0.04, 0.025
+    axbox_text_nu_parallel = fig.add_axes([left, bottom, width, height])
+    text_box_nu_parallel = TextBox(axbox_text_nu_parallel, "nu_parallel:   ")
     text_box_nu_parallel.set_val(nu_parallel)
 
-    axbox_button = fig.add_axes([0.65, 0.01, 0.1, 0.075])
+    left, bottom, width, height = 0.17, 0.005, 0.1, 0.055
+    axbox_button = fig.add_axes([left, bottom, width, height])
     button = Button(axbox_button, "Update")
 
     #define the function that will be called when the button is pressed
