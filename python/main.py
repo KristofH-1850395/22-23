@@ -1,3 +1,6 @@
+""" Should still work, but not used anymore. Simulation is now done in C++. """
+
+
 # Main class, execute from here
 import system as sys
 import matplotlib.pyplot as plt
