@@ -9,7 +9,7 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
     # defining parameters
 
      # get the path of the data folder
-    root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     dir_path = os.path.join(root_path, 'data')
 
     # Get all CSV files in the directory
@@ -27,13 +27,17 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
         csv_path = os.path.join(dir_path, csv_file)
         data = pd.read_csv(csv_path)
 
-        # scale the data
-        x_axis =  []
-        for t in data['t']:
-            x_axis.append(t * (simulated_lambda - lambda_critical)**nu_parallel)
-
+        #convert  data to tuple
+        data = data.to_numpy()
+        x_axis = []
         y_axis = []
-        for density in data['density']:
+
+        #loop through the data and scale it
+        for i in range(len(data)):
+            t = data[i][0]
+            density = data[i][1]
+
+            x_axis.append(t * abs(simulated_lambda - lambda_critical)**nu_parallel)
             y_axis.append(density * (t ** alpha))
 
         # calculate delta_lambda
@@ -63,7 +67,6 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
     ax.set_xscale('log')
     ax.set_xlim(1e-2, 1e2)
     ax.set_yscale('log')
-    ax.set_ylim(1e-3, 1e1)
 
     #add a legend to ax
     ax.legend()

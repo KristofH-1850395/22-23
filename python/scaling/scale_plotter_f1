@@ -10,7 +10,7 @@ def scale_plotter():
     nu_parallel = 1.73383 #this is our guess
 
      # get the path of the data folder
-    root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     dir_path = os.path.join(root_path, 'data')
 
     # Get all CSV files in the directory
@@ -28,13 +28,17 @@ def scale_plotter():
         csv_path = os.path.join(dir_path, csv_file)
         data = pd.read_csv(csv_path)
 
-        # scale the data
-        x_axis =  []
-        for t in data['t']:
-            x_axis.append(t * (simulated_lambda - lambda_critical)**nu_parallel)
-
+        #convert  data to tuple
+        data = data.to_numpy()
+        x_axis = []
         y_axis = []
-        for density in data['density']:
+
+        #loop through the data and scale it
+        for i in range(len(data)):
+            t = data[i][0]
+            density = data[i][1]
+
+            x_axis.append(t**(1/nu_parallel) * (simulated_lambda - lambda_critical))
             y_axis.append(density * (t ** alpha))
 
         # calculate delta_lambda
@@ -43,28 +47,18 @@ def scale_plotter():
         multiple = int(delta_lambda/0.0128)
         #label the plot with the multiple
         plot_label = str(multiple) + ' * 0.0128'
-
-        #determine color of the plot
-        if delta_lambda < 0:
-            color = 'r'
-        elif delta_lambda > 0:
-            color = 'g'
-        else:
-            color = 'b'
         
         # add the dataframe to the plot
-        plt.plot(x_axis, y_axis, label=plot_label, color=color)
+        plt.plot(x_axis, y_axis, label=plot_label)
 
     # Plot the data
-    plt.xlabel('t * (lambda - lambda_critical)^nu_parallel')
+    plt.xlabel('t**(1 / nu_parallel) * (simulated_lambda - lambda_critical)')
     plt.ylabel('density * t^alpha')
     plt.title('All CSV Data')
 
     #set the axis to log scale
-    plt.xscale('log')
-    plt.xlim(1e-2, 1e2)
-    plt.yscale('log')
-    plt.ylim(1e-1, 1e1)
+    plt.xscale('linear')
+    plt.yscale('linear')
 
     #add a legend
     plt.legend()
