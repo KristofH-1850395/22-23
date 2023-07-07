@@ -1,8 +1,8 @@
 #include <vector>
 
-class System {
+class ContactProcess {
 public:
-  System(float infectionRate, int systemSize);
+  ContactProcess(float infectionRate, int systemSize);
   void create(int x, int y);
   void annihilate(int x);
 

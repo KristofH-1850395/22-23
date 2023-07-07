@@ -1,7 +1,7 @@
-#include "../include/system.h"
+#include "../include/contactProcess.h"
 
 // constructor
-System::System(float infectionRate, int systemSize) {
+ContactProcess::ContactProcess(float infectionRate, int systemSize) {
   this->infectionRate = infectionRate;
   this->density = 1;
   this->creationProbability = infectionRate / (1 + infectionRate);
@@ -12,7 +12,7 @@ System::System(float infectionRate, int systemSize) {
   }
 }
 
-void System::create(int x, int y) {
+void ContactProcess::create(int x, int y) {
   if (this->lattice[x] == 1 && this->lattice[y] == 0) {
     this->lattice[y] = 1;
     this->particleCount++;
@@ -20,7 +20,7 @@ void System::create(int x, int y) {
   calculateDensity();
 }
 
-void System::annihilate(int x) {
+void ContactProcess::annihilate(int x) {
   if (this->lattice[x] == 1) {
     this->lattice[x] = 0;
     this->particleCount--;
@@ -28,6 +28,6 @@ void System::annihilate(int x) {
   calculateDensity();
 }
 
-void System::calculateDensity() {
+void ContactProcess::calculateDensity() {
   this->density = (float)this->particleCount / (float)this->latticeSize;
 }

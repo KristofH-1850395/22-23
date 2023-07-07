@@ -66,7 +66,7 @@ vector<pair<double, double>> averageData(std::vector<dictItem> dataDict) {
   return averageData;
 }
 
-void mcStep(System &system) {
+void mcStep(ContactProcess &system) {
   // choose a random index between 0 and latticeSize
   int x = rand() % system.getLatticeSize();
 
@@ -108,7 +108,7 @@ void findCriticalExponent(int systemSize, int simTime, float infectionRate, int 
     }
 
     // init the system
-    System system(infectionRate, systemSize);
+    ContactProcess system(infectionRate, systemSize);
 
     // define the duration of a MC step and set meassuring parameters
     double mcDuration = 1 / (system.getLatticeSize() * (1 + infectionRate));
