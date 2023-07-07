@@ -1,4 +1,4 @@
-#include "../include/system.h"
+#include "../include/contactProcess.h"
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
