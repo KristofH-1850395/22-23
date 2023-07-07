@@ -48,10 +48,11 @@ def scale_plotter(z, ax):
     # Set label and title
     ax.set_xlabel(r'$\frac{t}{L^z}$')
     ax.set_ylabel(r'$\rho(t) t^\alpha$')
+    ax.set_title('Finite Size Scaling')
+    
     ax.tick_params(axis='both', which='major', labelsize=12)
     ax.xaxis.label.set_size(20)
     ax.yaxis.label.set_size(20)
-    ax.set_title('Finite Size Scaling')
     ax.title.set_size(30)
 
     #set the axis to log scale
