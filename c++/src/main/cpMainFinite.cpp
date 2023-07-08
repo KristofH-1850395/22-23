@@ -1,4 +1,6 @@
-#include "../include/system.h"
+#include "../../include/contactProcess.h"
+#include "../../include/helper.h"
+
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
@@ -7,64 +9,6 @@
 #include <cmath>
 #include <omp.h>
 using namespace std;
-
-class dictItem {
-private:
-  std::vector<std::pair<float, float>> values;
-
-public:
-  dictItem(std::vector<std::pair<float, float>> values) {
-    this->values = values;
-  }
-
-  std::vector<std::pair<float, float>> getValues() { return this->values; }
-  void addValue(std::pair<float, float> value) {
-    ;
-    this->values.push_back(value);
-    ;
-  }
-};
-
-void writeData(vector<pair<double, double>> data, int systemSize, string path) {
-  // write avg_data to output.csv
-  ofstream output(path + "system_size_" + to_string(systemSize) + ".csv");
-  string outputString = "t,density\n";
-  for (int i = 0; i < data.size(); i++) {
-    outputString += std::to_string(data[i].first);
-    outputString += ",";
-    outputString += std::to_string(data[i].second);
-    outputString += "\n";
-  }
-  output << outputString;
-}
-
-vector<pair<double, double>> averageData(std::vector<dictItem> dataDict) {
-  vector<pair<double, double>> averageData=vector<pair<double,double>>(dataDict[0].getValues().size(),make_pair<double,double>(0,0));
-  // loop over each data point
-  #pragma omp parallel for schedule(dynamic) num_threads(8)
-  for (int i = 0; i < dataDict[0].getValues().size(); i++) {
-    double average = 0;
-    // loop over each simulation
-    for (int j = 0; j < dataDict.size(); j++) {
-      average += dataDict[j].getValues()[i].second;
-    }
-
-    // report progress every 1000 data points
-    if (i % 1000 == 0) {
-      cout << "averaging data point " << i << " of "
-           << dataDict[0].getValues().size() << endl;
-    }
-
-    // calculate the average
-    average /= dataDict.size();
-    
-    // add the average to the averageData vector
-    averageData[i].first=dataDict[0].getValues()[i].first;
-    averageData[i].second=average;
-  }
-  // return averageData
-  return averageData;
-}
 
 void mcStepCP(ContactProcess &system) {
   // choose a random index between 0 and latticeSize
@@ -137,9 +81,9 @@ void simContactProcess(int systemSize, int simTime, float infectionRate, int ens
 
   // average the data and write to file  
   cout << "averaging data" << endl; 
-  vector<pair<double, double>> avg_data = averageData(dataDict);
+  vector<pair<double, double>> avg_data = Helper::averageData(dataDict);
   cout << "writing data" << endl; 
-  writeData(avg_data, systemSize, path);
+  Helper::writeData(avg_data, systemSize, path);
 }
 
 int main(int argc, char *argv[]) {

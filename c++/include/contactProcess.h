@@ -1,4 +1,14 @@
 #include <vector>
+#include <string>
+#include <cmath>
+#include <vector>
+#include <iostream>
+
+#include <omp.h>
+#include <stdlib.h>
+#include "helper.h"
+
+using namespace std;
 
 class ContactProcess {
 public:
@@ -21,6 +31,9 @@ public:
   void setLattice(std::vector<int> lattice) { this->lattice = lattice; }
   std::vector<int> getLattice() { return this->lattice; }
 
+  void simContactProcess(int simTime, int ensembleSize, string filePath);
+  void mcStepCP();
+
 private:
   void calculateDensity();
   int latticeSize;
@@ -28,5 +41,5 @@ private:
   float density;
   float creationProbability;
   std::vector<int> lattice;
-  int particleCountA;
+  int particleCount;
 };

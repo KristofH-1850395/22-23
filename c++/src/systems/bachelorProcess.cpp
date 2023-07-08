@@ -1,4 +1,4 @@
-#include "../include/bachelorProcess.h"
+#include "../../include/bachelorProcess.h"
 
 // constructor
 ContactProcess::ContactProcess(float infectionRate, int systemSize) {
