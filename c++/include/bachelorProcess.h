@@ -5,6 +5,7 @@ public:
   ContactProcess(float infectionRate, int systemSize);
   void create(int x, int y);
   void annihilate(int x);
+  void mix(int x, int y);
 
   void setInfectionRate(float infectionRate) {this->infectionRate = infectionRate;}
   float getInfectionRate() { return this->infectionRate; }
@@ -18,8 +19,8 @@ public:
   void setLatticeSize(int latticeSize) {this->latticeSize = latticeSize;}
   int getLatticeSize() { return this->latticeSize; }
 
-  void setLattice(std::vector<int> lattice) { this->lattice = lattice; }
-  std::vector<int> getLattice() { return this->lattice; }
+  void setLattice(std::vector<char> lattice) { this->lattice = lattice; }
+  std::vector<char> getLattice() { return this->lattice; }
 
 private:
   void calculateDensity();
@@ -27,6 +28,8 @@ private:
   float infectionRate;
   float density;
   float creationProbability;
-  std::vector<int> lattice;
+  float mixingProbability;
+  std::vector<char> lattice;
   int particleCountA;
+  int particleCountB;
 };

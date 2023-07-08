@@ -68,7 +68,7 @@ vector<pair<double, double>> averageData(std::vector<dictItem> dataDict) {
   return averageData;
 }
 
-void mcStep(ContactProcess &system) {
+void mcStepCP(ContactProcess &system) {
   // choose a random index between 0 and latticeSize
   int x = rand() % system.getLatticeSize();
 
@@ -101,7 +101,7 @@ void mcStep(ContactProcess &system) {
   }
 }
 
-void findCriticalExponent(int simTime, float infectionRate, int ensembleSize, string path) {
+void simContactProcess(int simTime, float infectionRate, int ensembleSize, string path) {
   std::vector<dictItem> dataDict;
   for (int i = 0; i < ensembleSize; i++) {
     // report progress every 100 simulations
@@ -128,7 +128,7 @@ void findCriticalExponent(int simTime, float infectionRate, int ensembleSize, st
     // run the simulation
     while (time < simTime) {
       if (system.getDensity() != 0) {
-        mcStep(system);
+        mcStepCP(system);
       }
       time += mcDuration;
       timeSinceMeassurement += mcDuration;
@@ -156,7 +156,6 @@ int main(int argc, char *argv[]) {
   // float infectionRate = the second argument
   float infectionRate = std::atof(argv[2]);
 
-
   // int ensembleSize = the third argument
   int ensembleSize = std::atoi(argv[3]);
 
@@ -167,9 +166,8 @@ int main(int argc, char *argv[]) {
   double delta = 0.0128;
   int range = 10;
   for (double i = infectionRate - (delta * range); i <= infectionRate + (delta * range); i += delta) {
-     findCriticalExponent(simTime, i, ensembleSize, outputPath);
+     simContactProcess(simTime, i, ensembleSize, outputPath);
   }
-  // findCriticalExponent(simTime, infectionRate, ensembleSize, outputPath);
 
   return 0;
 }
