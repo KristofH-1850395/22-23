@@ -5,13 +5,13 @@ import re
 from matplotlib.widgets import TextBox, Button
 from matplotlib.gridspec import GridSpec
 
-def scale_plotter(z, ax):
-    alpha = 0.16
-
+def finite_plotter(alpha, z, ax):
     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data
-    dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
+    # dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data for CP
+    # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
+    # dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for BP
+    dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for finite size scaling
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -77,30 +77,39 @@ def scale_plotter(z, ax):
 
 if __name__ == '__main__':
     # defining parameter
-    z = 1.58 #this is our guess
+    alpha = 0.183
+    z = 1.86 #this is our guess
 
-    # create the figure and the axes
+        #create the figure and the axes
     fig, ax = plt.subplots()
     gs = GridSpec(6, 5, figure=fig)
 
-    # create the text box and the button
-    left, bottom, width, height = 0.125, 0.0125, 0.04, 0.02
+    #create the text box and the button  
+    left, bottom, width, height = 0.125, 0.035, 0.04, 0.025
+    axbox_text_alpha = fig.add_axes([left, bottom, width, height])
+    text_box_alpha = TextBox(axbox_text_alpha, "alpha:   ")
+    text_box_alpha.set_val(alpha)
+
+    left, bottom, width, height = 0.125, 0.005, 0.04, 0.025
     axbox_text_z = fig.add_axes([left, bottom, width, height])
     text_box_z = TextBox(axbox_text_z, "z:   ")
     text_box_z.set_val(z)
 
-    left, bottom, width, height = 0.17, 0.0125, 0.1, 0.02
+    left, bottom, width, height = 0.17, 0.005, 0.1, 0.055
     axbox_button = fig.add_axes([left, bottom, width, height])
     button = Button(axbox_button, "Update")
 
-    # define the function that will be called when the button is pressed
+    #define the function that will be called when the button is pressed
     def submit(expression):
-        if expression.inaxes == axbox_button: # Make sure the button was pressed
+        if expression.inaxes == axbox_button: # Make sure the button was presseds
             ax.lines.clear()
-            scale_plotter(float(text_box_z.text), ax)
+            finite_plotter(float(text_box_alpha.text), float(text_box_z.text), ax)
 
-    # connect the button event with the function submit
+    # Connect the button event with the function submit
+    text_box_alpha.disconnect(text_box_alpha.disconnect_events) # Disconnect all other events
+    text_box_alpha.connect_event('button_press_event', submit) # Connect the button event
+
     text_box_z.disconnect(text_box_z.disconnect_events) # Disconnect all other events
     text_box_z.connect_event('button_press_event', submit) # Connect the button event
-
-    scale_plotter(z, ax)
+    
+    finite_plotter(alpha, z, ax)

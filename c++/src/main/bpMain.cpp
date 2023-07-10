@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) {
     std::string outputPath = argv[4];
 
     // run the simulation for infectionRate +- a delta
-    double delta = 0.0128;
-    int range = 10;
+    double delta = 0.1;
+    int range = 5;
 
     int iteration = 1;
 

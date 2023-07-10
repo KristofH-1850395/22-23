@@ -3,6 +3,7 @@
 #include "../include/contactProcess.h"
 #include <fstream>
 #include <iostream>
+#include <cmath>
 #include "omp.h"
 
 void Application::writeData(std::vector<std::pair<double, double>> data, float infectionRate, int latticeSize, std::string filePath) {
@@ -62,7 +63,7 @@ void Application::simulateContactProcess(int simulationTime, int ensembleSize, f
         // define the duration of a MC step and set meassuring parameters
         double mcDuration = 1 / (latticeSize * process.getNormalisationFactor());
         double time = 0;
-        double measuringInterval = simulationTime / 4000.0; // we don't want too many data points
+        double measuringInterval = simulationTime / 10000.0; // we don't want too many data points
         double timeSinceMeasurement = 0;
 
         // add the initial density to the dataDict    
@@ -111,7 +112,7 @@ void Application::simulateBachelorProcess(int simulationTime, int ensembleSize, 
         // define the duration of a MC step and set meassuring parameters
         double mcDuration = 1 / (latticeSize * lattice.getNormalisationFactor());
         double time = 0;
-        double measuringInterval = simulationTime / 4000.0; // we don't want too many data points
+        double measuringInterval = simulationTime / 10000.0; // we don't want too many data points
         double timeSinceMeasurement = 0;
 
         // add the initial density to the dataDict    

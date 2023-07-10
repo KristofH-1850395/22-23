@@ -23,10 +23,6 @@ void BachelorProcess::create(int x, int y) {
         this->lattice[y] = 'A';
         this->particleCountA++;
     }
-    else if (this->lattice[x] == '0' && (this->lattice[y] == 'A' || this->lattice[y] == 'B')) {
-        this->lattice[x] = 'A';
-        this->particleCountA++;
-    }
 
     updateDensity();
 }
@@ -44,10 +40,6 @@ void BachelorProcess::mix(int x, int y) {
     if (this->lattice[x] == 'A' && this->lattice[y] == 'B') {
         this->lattice[x] = 'B';
         this->lattice[y] = 'A';
-    }
-    else if (this->lattice[x] == 'B' && this->lattice[y] == 'A') {
-        this->lattice[x] = 'A';
-        this->lattice[y] = 'B';
     }
     else if (this->lattice[x] == 'A' && this->lattice[y] == 'A') {
         this->lattice[x] = 'B';

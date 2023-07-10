@@ -43,7 +43,7 @@ def plotter(alpha, b, ax):
     y_exp = np.exp(y)
     # plot the line in black
     label = f"y = -{alpha}x + {b}"
-    ax.plot(x_exp, y_exp, color='black', label=label)
+    #ax.plot(x_exp, y_exp, color='black', label=label)
 
 
     # Plot the data
@@ -61,9 +61,9 @@ def plotter(alpha, b, ax):
 
     #set the axis to log scale
     ax.set_xscale('log')
-    ax.set_xlim(1, 1e2)
+    # ax.set_xlim(1, 1e2)
     ax.set_yscale('log')
-    ax.set_ylim(2e-1, 1e0)
+    # ax.set_ylim(2e-1, 1e0)
 
     #add a legend
     ax.legend()
