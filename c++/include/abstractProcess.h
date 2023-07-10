@@ -20,6 +20,8 @@ class AbstractProcess {
         void setLattice(std::vector<int> lattice) { this->lattice = lattice; }
         std::vector<int> getLattice() { return this->lattice; }
 
+        float getNormalisationFactor() { return this->normalisationFactor; }
+
         virtual void monteCarloStep() = 0;
 
     protected:
@@ -29,5 +31,6 @@ class AbstractProcess {
         float infectionRate;
         float density;
         float creationProbability;
+        float normalisationFactor;
         std::vector<int> lattice;
 };

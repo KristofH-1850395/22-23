@@ -4,7 +4,8 @@
 ContactProcess::ContactProcess(float infectionRate, int systemSize) {
     this->infectionRate = infectionRate;
     this->density = 1;
-    this->creationProbability = infectionRate / (1 + infectionRate);
+    this->normalisationFactor = (1 + infectionRate);
+    this->creationProbability = infectionRate / normalisationFactor;
     this->latticeSize = systemSize;
     this->particleCount = latticeSize;
 

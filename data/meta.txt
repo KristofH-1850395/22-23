@@ -1,3 +1,0 @@
-n_sim = 1e3
-t = 1e3
-sys_size = 1e3

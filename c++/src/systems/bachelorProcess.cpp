@@ -5,8 +5,9 @@ BachelorProcess::BachelorProcess(float infectionRate, int systemSize) {
     // note for the reader: one A particle is equivalent to two B particles, as such we have density between 0 and 2
     this->infectionRate = infectionRate;
     this->density = 2; // one A particle per site
-    this->creationProbability = 4 * infectionRate / (1 + 12 * infectionRate);
-    this->mixingProbability = 8 * infectionRate / (1 + 12 * infectionRate);
+    this->normalisationFactor = (1 + 12 * infectionRate);
+    this->creationProbability = 4 * infectionRate / normalisationFactor;
+    this->mixingProbability = 8 * infectionRate / normalisationFactor;
     this->latticeSize = systemSize;
     this->particleCountA = latticeSize; // creating a homogeneous lattice
     this->particleCountB = 0;

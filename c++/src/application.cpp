@@ -57,28 +57,28 @@ void Application::simulateContactProcess(int simulationTime, int ensembleSize, f
             std::cout << "for infectionRate: " << infectionRate <<  " --- running simulation " << i << " of " << ensembleSize << std::endl;
         }
 
-        ContactProcess lattice(infectionRate, latticeSize);
+        ContactProcess process(infectionRate, latticeSize);
 
         // define the duration of a MC step and set meassuring parameters
-        double mcDuration = 1 / (latticeSize * (1 + infectionRate));
+        double mcDuration = 1 / (latticeSize * process.getNormalisationFactor());
         double time = 0;
         double measuringInterval = simulationTime / 4000.0; // we don't want too many data points
         double timeSinceMeasurement = 0;
 
         // add the initial density to the dataDict    
         dataDict.push_back(dictItem(std::vector<std::pair<float, float>>()));
-        dataDict[i].addValue(std::make_pair(time, lattice.getDensity()));
+        dataDict[i].addValue(std::make_pair(time, process.getDensity()));
 
         // run the simulation
         while (time < simulationTime) {
-            if (lattice.getDensity() != 0) {
-                lattice.monteCarloStep();
+            if (process.getDensity() != 0) {
+                process.monteCarloStep();
             }
             time += mcDuration;
             timeSinceMeasurement += mcDuration;
 
             if (timeSinceMeasurement >= measuringInterval) {
-                dataDict[i].addValue(std::make_pair(time, lattice.getDensity()));
+                dataDict[i].addValue(std::make_pair(time, process.getDensity()));
                 timeSinceMeasurement = 0;
             }
         }
@@ -103,7 +103,7 @@ void Application::simulateBachelorProcess(int simulationTime, int ensembleSize, 
         BachelorProcess lattice(infectionRate, latticeSize);
 
         // define the duration of a MC step and set meassuring parameters
-        double mcDuration = 1 / (latticeSize * (1 + infectionRate));
+        double mcDuration = 1 / (latticeSize * lattice.getNormalisationFactor());
         double time = 0;
         double measuringInterval = simulationTime / 4000.0; // we don't want too many data points
         double timeSinceMeasurement = 0;
