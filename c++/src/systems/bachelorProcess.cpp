@@ -1,7 +1,7 @@
 #include "../../include/bachelorProcess.h"
+#include "math.h"
 
-// constructor
-ContactProcess::ContactProcess(float infectionRate, int systemSize) {
+BachelorProcess::BachelorProcess(float infectionRate, int systemSize) {
     // note for the reader: one A particle is equivalent to two B particles, as such we have density between 0 and 2
     this->infectionRate = infectionRate;
     this->density = 2; // one A particle per site
@@ -10,12 +10,13 @@ ContactProcess::ContactProcess(float infectionRate, int systemSize) {
     this->latticeSize = systemSize;
     this->particleCountA = latticeSize; // creating a homogeneous lattice
     this->particleCountB = 0;
+
     for (int i = 0; i < latticeSize; i++) {
         lattice.push_back('A');
     }
 }
 
-void ContactProcess::create(int x, int y) {
+void BachelorProcess::create(int x, int y) {
     // create an A particle if A or B neighbours a vacant site
     if ((this->lattice[x] == 'A' || this->lattice[x] == 'B') && this->lattice[y] == '0') {
         this->lattice[y] = 'A';
@@ -25,18 +26,20 @@ void ContactProcess::create(int x, int y) {
         this->lattice[x] = 'A';
         this->particleCountA++;
     }
-    calculateDensity();
+
+    updateDensity();
 }
 
-void ContactProcess::annihilate(int x) {
+void BachelorProcess::annihilate(int x) {
     if (this->lattice[x] == 'A') {
         this->lattice[x] = '0';
         this->particleCountA--;
     }
-    calculateDensity();
+
+    updateDensity();
 }
 
-void ContactProcess::mix(int x, int y) {
+void BachelorProcess::mix(int x, int y) {
     if (this->lattice[x] == 'A' && this->lattice[y] == 'B') {
         this->lattice[x] = 'B';
         this->lattice[y] = 'A';
@@ -56,10 +59,38 @@ void ContactProcess::mix(int x, int y) {
         this->particleCountA += 2;
         this->particleCountB -= 2;
     }
-    calculateDensity();
+
+    updateDensity();
 }
 
-void ContactProcess::calculateDensity() {
+void BachelorProcess::updateDensity() {
     // note for the reader: one A particle is equivalent to two B particles, as such we have density between 0 and 2
     this->density = ((float)this->particleCountA * 2 + (float)this->particleCountB) / (float)this->latticeSize;
+}
+
+void BachelorProcess::monteCarloStep() {
+    // @todo fix for bachelorProcess
+
+    // choose a random index between 0 and latticeSize
+    int x = rand() % this->latticeSize;
+
+    // choose a random float between 0 and 1
+    float r = (float)rand() / (float)RAND_MAX;
+
+    // attempt to create or annihilate a particle
+    if (r <= this->creationProbability) {
+        int y = getRandomNeighbour(x);
+
+        // attempt to create a particle
+        this->create(x, y);
+    } 
+    else if (r <= this->mixingProbability) {
+        int y = getRandomNeighbour(x);
+
+        // attempt to create a particle
+        this->mix(x, y);
+    }
+    else {
+        this->annihilate(x);
+    }
 }

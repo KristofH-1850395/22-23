@@ -1,15 +1,16 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import re
 from matplotlib.widgets import TextBox, Button
 from matplotlib.gridspec import GridSpec
 
 def scale_plotter(z, ax):
-    alpha = 0.15947
+    alpha = 0.179
 
     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    dir_path = os.path.join(root_path, 'data/finite_size')
+    dir_path = os.path.join(root_path, 'output3')
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -20,7 +21,8 @@ def scale_plotter(z, ax):
         data = pd.DataFrame()
 
         # define size from file name
-        size = int(csv_file[-6:-4])
+        m = re.search("lambda_([\d\.]+)_size_(\d+)\.csv", csv_file)
+        size = int(m.group(2))
 
         # read the csv file
         csv_path = os.path.join(dir_path, csv_file)
@@ -57,9 +59,9 @@ def scale_plotter(z, ax):
 
     #set the axis to log scale
     ax.set_xscale('log')
-    ax.set_xlim(1e-3, 1e1)
+    ax.set_xlim(1e-3, 1e3)
     ax.set_yscale('log')
-    ax.set_ylim(1e-2, 1e0)
+    ax.set_ylim(1e-3, 1e1)
 
     #add a legend
     ax.legend()

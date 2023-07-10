@@ -1,7 +1,12 @@
 #include "../../include/application.h"
 
-#include <string>
+#include <fstream>
 #include <iostream>
+#include <stdlib.h>
+#include <string>
+#include <vector>
+#include <cmath>
+#include <omp.h>
 
 int main(int argc, char *argv[]) {
     if (argc != 5) {
@@ -30,9 +35,10 @@ int main(int argc, char *argv[]) {
 
     int iteration = 1;
 
-    for (double lambda = infectionRate - (delta * range); lambda <= infectionRate + (delta * range); lambda += delta) {
+    // run the simulation for t = 15 to t = 65 in steps of 5
+    for (int systemSize = 8; systemSize <= pow(2,12); systemSize *= 2) {
         std::cout << "Iteration " << iteration << std::endl;
-        Application::simulateContactProcess(simTime, ensembleSize, lambda, 1000, outputPath);
+        Application::simulateBachelorProcess(simTime, ensembleSize, infectionRate, systemSize, outputPath);
 
         iteration++;
     }

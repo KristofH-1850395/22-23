@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
 
     for (double lambda = infectionRate - (delta * range); lambda <= infectionRate + (delta * range); lambda += delta) {
         std::cout << "Iteration " << iteration << std::endl;
-        Application::simulateContactProcess(simTime, ensembleSize, lambda, 1000, outputPath);
+        Application::simulateBachelorProcess(simTime, ensembleSize, lambda, 1000, outputPath);
 
         iteration++;
     }

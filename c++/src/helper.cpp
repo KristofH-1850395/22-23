@@ -39,8 +39,6 @@ vector<pair<double, double>> Helper::averageData(std::vector<dictItem> dataDict)
     // add the average to the averageData vector
     averageData[i].first=dataDict[0].getValues()[i].first;
     averageData[i].second=average;
-    /*averageData.push_back(
-        std::make_pair(dataDict[0].getValues()[i].first, average));*/
   }
   // return averageData
   return averageData;

@@ -1,6 +1,8 @@
 #include "dictItem.h"
 #include <vector>
 #include <string>
+#include <fstream>
+#include <iostream>
 using namespace std;
 
 // this helper class hosts the following functions:
