@@ -5,9 +5,9 @@
 #include <iostream>
 #include "omp.h"
 
-void Application::writeData(std::vector<std::pair<double, double>> data, float infectionRate, int systemSize, std::string path) {
+void Application::writeData(std::vector<std::pair<double, double>> data, float infectionRate, int latticeSize, std::string filePath) {
     // write avg_data to output.csv
-    std::ofstream output(path + "lambda_" + std::to_string(infectionRate) + "_size_" + std::to_string(systemSize) + ".csv");
+    std::ofstream output(filePath + "lambda_" + std::to_string(infectionRate) + "_size_" + std::to_string(latticeSize) + ".csv");
     std::string outputString = "t,density\n";
 
     for (int i = 0; i < data.size(); i++) {
@@ -84,6 +84,12 @@ void Application::simulateContactProcess(int simulationTime, int ensembleSize, f
         }
     }
 
+    // write metadata to meta.txt
+    std::ofstream metadata(filePath + "metadata.txt");
+    std::string metadataString = "simulation time: " + std::to_string(simulationTime) + "\n";
+    metadataString += "ensemble size: " + std::to_string(ensembleSize) + "\n";    
+    metadata << metadataString;
+
     // average the data and write to file  
     std::cout << "averaging data" << std::endl; 
     std::vector<std::pair<double, double>> avg_data = Application::averageData(dataDict);
@@ -126,6 +132,12 @@ void Application::simulateBachelorProcess(int simulationTime, int ensembleSize, 
             }
         }
     }
+
+    // write metadata to meta.txt
+    std::ofstream metadata(filePath + "metadata.txt");
+    std::string metadataString = "simulation time: " + std::to_string(simulationTime) + "\n";
+    metadataString += "ensemble size: " + std::to_string(ensembleSize) + "\n";    
+    metadata << metadataString;
 
     // average the data and write to file
     std::cout << "averaging data" << std::endl;

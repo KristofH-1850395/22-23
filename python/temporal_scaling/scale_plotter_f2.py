@@ -10,7 +10,8 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
      # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    dir_path = os.path.join(root_path, 'c++/data2')
+    dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data
+    # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -79,15 +80,20 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
     #add a legend to ax
     ax.legend()
 
+    # sort both labels and handles by labels
+    handles, labels = ax.get_legend_handles_labels()
+    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
+    ax.legend(handles, labels)
+
     #show the plot
     plt.show()
 
 
 if __name__ == '__main__':
     # defining parameters
-    alpha = 0.179
-    nu_parallel = 2.7 #this is our guess
-    lambda_critical = 0.5488
+    alpha = 0.16
+    nu_parallel = 1.74  # this is our guess
+    lambda_critical = 3.29785
 
     #create the figure and the axes
     fig, ax = plt.subplots()

@@ -8,7 +8,9 @@ from matplotlib.gridspec import GridSpec
 def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
      # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    dir_path = os.path.join(root_path, 'c++/data2')
+    dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data
+    # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
+
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -36,7 +38,7 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
             t = data[i][0]
             density = data[i][1]            
 
-            if t < 2:
+            if t < 1:
                 continue
 
             x_axis.append(t**(1/nu_parallel) * (simulated_lambda - lambda_critical))
@@ -77,9 +79,9 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
 if __name__ == '__main__':
     # defining parameters
-    alpha = 0.179
-    nu_parallel = 2.7#this is our guess
-    lambda_critical = 0.5488
+    alpha = 0.16
+    nu_parallel = 1.74  # this is our guess
+    lambda_critical = 3.29785
 
     #create the figure and the axes
     fig, ax = plt.subplots()

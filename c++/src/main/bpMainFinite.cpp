@@ -35,7 +35,6 @@ int main(int argc, char *argv[]) {
 
     int iteration = 1;
 
-    // run the simulation for t = 15 to t = 65 in steps of 5
     for (int systemSize = 8; systemSize <= pow(2,12); systemSize *= 2) {
         std::cout << "Iteration " << iteration << std::endl;
         Application::simulateBachelorProcess(simTime, ensembleSize, infectionRate, systemSize, outputPath);
