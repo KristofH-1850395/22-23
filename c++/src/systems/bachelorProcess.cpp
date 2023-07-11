@@ -41,6 +41,10 @@ void BachelorProcess::mix(int x, int y) {
         this->lattice[x] = 'B';
         this->lattice[y] = 'A';
     }
+    else if (this->lattice[x] == 'B' && this->lattice[y] == 'A') {
+        this->lattice[x] = 'A';
+        this->lattice[y] = 'B';
+    }
     else if (this->lattice[x] == 'A' && this->lattice[y] == 'A') {
         this->lattice[x] = 'B';
         this->lattice[y] = 'B';
@@ -62,8 +66,6 @@ void BachelorProcess::updateDensity() {
 }
 
 void BachelorProcess::monteCarloStep() {
-    // @todo fix for bachelorProcess
-
     // choose a random index between 0 and latticeSize
     int x = rand() % this->latticeSize;
 
