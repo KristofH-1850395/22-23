@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     int iteration = 1;
 
     for (double lambda = infectionRate - (delta * range); lambda <= infectionRate + (delta * range); lambda += delta) {
-       std::cout << "Iteration " << iteration << "/" << 2*range+1 << std::endl;
+       std::cout << "Iteration " << iteration << "/" << (2 * range) + 1 << std::endl;
         Application::simulateBachelorProcess(simulationTime, ensembleSize, lambda, 1000, outputPath);
 
         iteration++;

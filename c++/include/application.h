@@ -13,5 +13,7 @@ class Application {
         static std::vector<std::pair<double, double>> averageData(std::vector<dictItem> dataDict);
         static void simulateContactProcess(int simTime, int ensembleSize, float infectionRate, int latticeSize, std::string filePath);
         static void simulateBachelorProcess(int simTime, int ensembleSize, float infectionRate, int latticeSize, std::string filePath);
+    private:
+        template <typename Process> static dictItem monteCarlo(Process lattice, int simulationTime);
 };
 
