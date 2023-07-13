@@ -39,7 +39,7 @@ def finite_plotter(alpha, z, ax):
             t = data[i][0]
             density = data[i][1]            
 
-            if t == 0:
+            if t < 1:
                 continue
 
             x_axis.append(t / size**z)

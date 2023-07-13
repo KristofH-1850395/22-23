@@ -40,7 +40,7 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
             t = data[i][0]
             density = data[i][1]            
 
-            if t == 0:
+            if t < 1:
                 continue
 
             x_axis.append(t**(1/nu_parallel) * (simulated_lambda - lambda_critical))
@@ -68,9 +68,9 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
     #set the axis to log scale
     ax.set_xscale('linear')
-    ax.set_xlim(-1.85, 1.65)
+    ax.set_xlim(-0.3, 0.3)
     ax.set_yscale('linear')
-    ax.set_ylim(0.55, 1.05)
+    ax.set_ylim(0.8, 1.5)
 
     #add a legend
     ax.legend()
@@ -81,9 +81,9 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
 if __name__ == '__main__':
     # defining parameters
-    alpha = 0.183
+    alpha = 0.216
     nu_parallel = 2.4  # this is our guess
-    lambda_critical = 0.5488
+    lambda_critical = 0.32939
 
     #create the figure and the axes
     fig, ax = plt.subplots()

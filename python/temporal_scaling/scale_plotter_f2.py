@@ -93,9 +93,9 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
 if __name__ == '__main__':
     # defining parameters
-    alpha = 0.183
+    alpha = 0.216
     nu_parallel = 2.4  # this is our guess
-    lambda_critical = 0.5488
+    lambda_critical = 0.32939
 
     #create the figure and the axes
     fig, ax = plt.subplots()
