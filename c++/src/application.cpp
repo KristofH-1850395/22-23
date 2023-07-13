@@ -85,12 +85,6 @@ void Application::simulateContactProcess(int simulationTime, int ensembleSize, f
         }
     }
 
-    // write metadata to meta.txt
-    std::ofstream metadata(filePath + "metadata.txt");
-    std::string metadataString = "simulation time: " + std::to_string(simulationTime) + "\n";
-    metadataString += "ensemble size: " + std::to_string(ensembleSize) + "\n";    
-    metadata << metadataString;
-
     // average the data and write to file  
     std::cout << "averaging data" << std::endl; 
     std::vector<std::pair<double, double>> avg_data = Application::averageData(dataDict);
@@ -133,12 +127,6 @@ void Application::simulateBachelorProcess(int simulationTime, int ensembleSize, 
             }
         }
     }
-
-    // write metadata to meta.txt
-    std::ofstream metadata(filePath + "metadata.txt");
-    std::string metadataString = "simulation time: " + std::to_string(simulationTime) + "\n";
-    metadataString += "ensemble size: " + std::to_string(ensembleSize) + "\n";    
-    metadata << metadataString;
 
     // average the data and write to file
     std::cout << "averaging data" << std::endl;

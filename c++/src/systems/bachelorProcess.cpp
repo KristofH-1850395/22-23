@@ -72,17 +72,17 @@ void BachelorProcess::monteCarloStep() {
     // choose a random float between 0 and 1
     float r = (float)rand() / (float)RAND_MAX;
 
-    // attempt to create or annihilate a particle
+    // attempt to create, mix or annihilate a particle
     if (r <= this->creationProbability) {
         int y = getRandomNeighbour(x);
 
         // attempt to create a particle
         this->create(x, y);
     } 
-    else if (r <= this->mixingProbability) {
+    else if (r <= this->creationProbability + this->mixingProbability) {
         int y = getRandomNeighbour(x);
 
-        // attempt to create a particle
+        // attempt to mix a particle
         this->mix(x, y);
     }
     else {
