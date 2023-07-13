@@ -21,7 +21,7 @@ def configure_plot(ax):
 
     # set the axis to log scale
     ax.set_xscale('log')
-    ax.set_xlim(1e0 , 1e2)
+    ax.set_xlim(1e-3 , 1e2)
     ax.set_yscale('log')
     ax.set_ylim(1e-1, 2e0)
 
@@ -81,7 +81,7 @@ def plotter():
             critical_lambda = infection_rate
         
     # create linespace for x values
-    x = np.linspace(0, 1e2, 1000)
+    x = np.linspace(-1e2, 1e2, 1000)
 
     alpha = best_alpha
     b = best_b
