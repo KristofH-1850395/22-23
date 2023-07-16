@@ -8,10 +8,8 @@ from matplotlib.gridspec import GridSpec
 def finite_plotter(alpha, z, ax):
     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data for CP
-    # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
-    # dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for BP
-    dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for finite size scaling
+    # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for the contact process
+    dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for the bachelor process
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -60,9 +58,9 @@ def finite_plotter(alpha, z, ax):
 
     # set the axis to log scale
     ax.set_xscale('log')
-    ax.set_xlim(1e-4, 1e1)
+    # ax.set_xlim(1e-4, 1e1)
     ax.set_yscale('log')
-    ax.set_ylim(1e-2, 1e0)
+    # ax.set_ylim(1e-2, 1e0)
 
     # add a legend
     ax.legend()
@@ -77,8 +75,8 @@ def finite_plotter(alpha, z, ax):
 
 if __name__ == '__main__':
     # defining parameter
-    alpha = 0.183
-    z = 1.86 #this is our guess
+    alpha = 0.25315
+    z = 1.6 #this is our guess
 
         #create the figure and the axes
     fig, ax = plt.subplots()
@@ -101,7 +99,7 @@ if __name__ == '__main__':
 
     #define the function that will be called when the button is pressed
     def submit(expression):
-        if expression.inaxes == axbox_button: # Make sure the button was presseds
+        if expression.inaxes == axbox_button: # Make sure the button was pressed
             ax.lines.clear()
             finite_plotter(float(text_box_alpha.text), float(text_box_z.text), ax)
 

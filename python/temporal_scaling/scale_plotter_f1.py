@@ -26,6 +26,9 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
         m = re.search("lambda_([\d\.]+)_size_(\d+)\.csv", csv_file)
         simulated_lambda = float(m.group(1))
 
+        if simulated_lambda - lambda_critical == 0:
+            continue
+
         # read the csv file
         csv_path = os.path.join(dir_path, csv_file)
         data = pd.read_csv(csv_path)
@@ -40,7 +43,7 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
             t = data[i][0]
             density = data[i][1]            
 
-            if t < 1:
+            if t < 10:
                 continue
 
             x_axis.append(t**(1/nu_parallel) * (simulated_lambda - lambda_critical))
@@ -49,9 +52,10 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
         # calculate delta_lambda
         delta_lambda = round(simulated_lambda - lambda_critical, 4)
         #determine which multiple of delta_lambda it is
-        multiple = int(delta_lambda/0.0128)
+        multiple = int(delta_lambda/0.00128)
         #label the plot with the multiple
-        plot_label = str(multiple) + ' * 0.0128'
+        delta = str(multiple) + ' * 0.00128'
+        plot_label = r"$\Delta = $" + str(delta)
         
         # add the dataframe to the plot
         ax.plot(x_axis, y_axis, label=plot_label)
@@ -68,9 +72,10 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
     #set the axis to log scale
     ax.set_xscale('linear')
-    ax.set_xlim(-0.3, 0.3)
     ax.set_yscale('linear')
-    ax.set_ylim(0.8, 1.5)
+
+    # auto scale the axis
+    ax.autoscale()
 
     #add a legend
     ax.legend()
@@ -81,9 +86,9 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
 if __name__ == '__main__':
     # defining parameters
-    alpha = 0.216
-    nu_parallel = 2.4  # this is our guess
-    lambda_critical = 0.32939
+    alpha = 0.253153 # from log plotter
+    nu_parallel = 1.7  # this is our guess
+    lambda_critical = 0.32546 # from log plotter
 
     #create the figure and the axes
     fig, ax = plt.subplots()

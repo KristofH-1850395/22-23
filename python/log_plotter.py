@@ -21,11 +21,11 @@ def configure_plot(ax):
 
     # set the axis to log scale
     ax.set_xscale('log')
-    ax.set_xlim(1e-3 , 1e2)
+    ax.set_xlim(1e0, 1e3)
     ax.set_yscale('log')
-    ax.set_ylim(1e-1, 2e0)
+    ax.set_ylim(1e-3, 2e0)
 
-    #add a legend
+    # add a legend
     ax.legend()
 
 def plotter():
@@ -34,9 +34,8 @@ def plotter():
 
     # dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data for CP
     # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
-    dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for BP
+    # dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for BP
     # dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for finite size scaling
-
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -66,11 +65,17 @@ def plotter():
         # add the dataframe to the plot
         ax.plot(data['t'], data['density'], label=label)
 
-        # do a linear fit for t > 10
-        x = np.log(data['t'][1:])
-        y = np.log(data['density'][1:])
+        # we only want to fit the data for the interval (10, 100)
+        for i in data['t']:
+            if i > 10:
+                # get index of i
+                index = data['t'].tolist().index(i)
+                t = np.log(data['t'][index:])
+                rho = np.log(data['density'][index:])
+                break
+
         # do a linear fit
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(t, rho)
         # calculate the r squared value
         r_squared = r_value**2
         # if the r squared value is better than the previous one, save the values
