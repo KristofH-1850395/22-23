@@ -1,58 +1,103 @@
 import os
 import re
 import pandas as pd
+from scipy.optimize import minimize_scalar
 from scipy.optimize import minimize
+from scipy import interpolate
 import numpy as np
+import matplotlib.pyplot as plt
 
-def get_data_from_csv(data):
-    # convert data to tuple
-    data = data.to_numpy()
-    data_pairs = []
-
-    # loop through the data
-    for i in range(len(data)):
-        t = data[i][0]
-        density = data[i][1]
-
-        data_pairs.append((t, density)) 
+# define the function to minimize
+def func_pb(params):    
+    # get the parameters
+    c = params[0]
+    d = params[1]
     
-    return data_pairs
-
-def get_overlapping_interval(data1, data2):
-    return 0,0
-
-
-def plotter():
     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
-    dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for finite size scaling
-    print(dir_path)
+    dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling    
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
 
-    data_list = []
+    # create a list of lattice lengths
+    lattice_lengths = []
 
-    # Loop through all the CSV files
+    # convert each file to a list of tuples
+    data = [] # data[i][j][k] -> i = list, j = pair in list, k = [0,1] -> 0 = t, 1 = density
+
     for csv_file in csv_files:
-        # Create an empty DataFrame to store all the data
-        data = pd.DataFrame()
-
-        # read the csv file
         csv_path = os.path.join(dir_path, csv_file)
-        data = pd.read_csv(csv_path)
+        df = pd.read_csv(csv_path)
+        data.append(df.to_numpy())
 
-        #get size from file name
+        # get the lattice length from the file name
         m = re.search("lambda_([\d\.]+)_size_(\d+)\.csv", csv_file)
-        size = int(m.group(2))
+        lattice_lengths.append(int(m.group(2)))    
+        
+    N = 0
+    estimated_residual_sum = 0
 
-        # get the data from the csv
-        data_pairs = get_data_from_csv(data)
+    # sum over over each list
+    for p in range(len(data)):
 
-        # append the data to the list
-        data_list.append(size, data_pairs)
+        # interpolate the data using scipy.interpolate
+        t = [data[p][i][0] for i in range(len(data[p]))]
+        rho = [data[p][i][1] for i in range(len(data[p]))]
+        f = interpolate.interp1d(t, rho, kind='cubic')
+        
+        # sum over data[p] every list that isn't data[p]
+        for j in range(len(data)):
+            if j != p:
+                # get the overlapping interval
+                start, end = get_overlapping_interval(data[p], data[j])
+
+                # sum over each pair in the overlapping interval
+                for i in range(len(data[j])):
+                    if data[j][i][0] >= start and data[j][i][0] <= end:
+                        N += 1 # calculating N_over
+                        
+                        t = data[j][i][0] # magic number 0 = t
+                        m = data[j][i][1] # magic number 1 = density
+                        
+                        L = lattice_lengths[j]
+                        x = L ** (-c) * t
+                        
+                        left_term = (L**(-d) * m)
+                        rho = f(x)
+
+                        # calculate the error
+                        estimated_residual = abs(left_term - rho)
+
+                        #add up all the estimated residuals
+                        estimated_residual_sum += estimated_residual
+
+    # calculate the average estimated residual
+    average_estimated_residual = estimated_residual_sum / N
+
+    return average_estimated_residual
+
+def get_overlapping_interval(data1, data2):
+    # get the lowest t value of the two data sets
+    t1_min = data1[0][0]
+    t2_min = data2[0][0]
+    t_min = max(t1_min, t2_min)
+
+    #get the highest t value of the two data sets
+    t1_max = data1[-1][0]
+    t2_max = data2[-1][0]
+    t_max = min(t1_max, t2_max)
+
+    return t_min, t_max
+
+
+def main():    
+    # minimize func_pb
+    initial_guess = [1, 1]
+    res = minimize(func_pb, initial_guess)
+    print(res.x)
 
 if __name__ == "__main__":
-    plotter()
+    main()
