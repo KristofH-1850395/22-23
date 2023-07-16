@@ -32,8 +32,8 @@ int main(int argc, char *argv[]) {
     metadata << metadataString;
 
     // run the simulation for infectionRate +- a delta
-    double delta = 0.25;
-    int range = 4;
+    double delta = 0.00128;
+    int range = 10;
 
     int iteration = 1;
 

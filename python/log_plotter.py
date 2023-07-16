@@ -21,7 +21,7 @@ def configure_plot(ax):
 
     # set the axis to log scale
     ax.set_xscale('log')
-    ax.set_xlim(1e0, 1e3)
+    ax.set_xlim(1e-2, 1e3)
     ax.set_yscale('log')
     ax.set_ylim(1e-3, 2e0)
 
@@ -34,7 +34,7 @@ def plotter():
 
     # dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data for CP
     # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
-    # dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for BP
+    dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for BP
     # dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for finite size scaling
 
     # Get all CSV files in the directory
