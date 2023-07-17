@@ -67,7 +67,7 @@ def plotter():
 
         # we only want to fit the data for the interval (10, 100)
         for i in data['t']:
-            if i > 10:
+            if i > 0:
                 # get index of i
                 index = data['t'].tolist().index(i)
                 t = np.log(data['t'][index:])

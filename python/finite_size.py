@@ -75,7 +75,7 @@ def finite_plotter(alpha, z, ax):
 
 if __name__ == '__main__':
     # defining parameter
-    alpha = 0.25315
+    alpha = 0.227
     z = 1.6 #this is our guess
 
         #create the figure and the axes
