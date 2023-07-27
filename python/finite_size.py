@@ -75,10 +75,10 @@ def finite_plotter(alpha, z, ax):
 
 if __name__ == '__main__':
     # defining parameter
-    alpha = 0.25315
+    alpha = 0.232
     z = 1.6 #this is our guess
 
-        #create the figure and the axes
+    #create the figure and the axes
     fig, ax = plt.subplots()
     gs = GridSpec(6, 5, figure=fig)
 
@@ -88,8 +88,8 @@ if __name__ == '__main__':
     text_box_alpha = TextBox(axbox_text_alpha, "alpha:   ")
     text_box_alpha.set_val(alpha)
 
-    left, bottom, width, height = 0.125, 0.005, 0.04, 0.025
-    axbox_text_z = fig.add_axes([left, bottom, width, height])
+    left, bottom, width, height = 0.125, 0.005, 0.04, .025
+    axbox_text_z = fig.add_axes([left, bottom, width, h0eight])
     text_box_z = TextBox(axbox_text_z, "z:   ")
     text_box_z.set_val(z)
 

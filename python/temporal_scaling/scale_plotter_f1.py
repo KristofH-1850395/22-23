@@ -43,7 +43,7 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
             t = data[i][0]
             density = data[i][1]            
 
-            if t < 10:
+            if t < 1:
                 continue
 
             x_axis.append(t**(1/nu_parallel) * (simulated_lambda - lambda_critical))
@@ -52,9 +52,9 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
         # calculate delta_lambda
         delta_lambda = round(simulated_lambda - lambda_critical, 4)
         #determine which multiple of delta_lambda it is
-        multiple = int(delta_lambda/0.00128)
+        multiple = int(delta_lambda/0.0128)
         #label the plot with the multiple
-        delta = str(multiple) + ' * 0.00128'
+        delta = str(multiple) + ' * 0.0128'
         plot_label = r"$\Delta = $" + str(delta)
         
         # add the dataframe to the plot
@@ -86,9 +86,9 @@ def scale_plotter(lambda_critical, alpha, nu_parallel, ax):
 
 if __name__ == '__main__':
     # defining parameters
-    alpha = 0.1784399151563354 # from log plotter
-    nu_parallel = 1.7  # this is our guess
-    lambda_critical = 0.32488 # from log plotter
+    alpha = 0.232 # from log plotter
+    nu_parallel = 2.4  # this is our guess
+    lambda_critical = 0.65768 # from log plotter
 
     #create the figure and the axes
     fig, ax = plt.subplots()

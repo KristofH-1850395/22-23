@@ -1,103 +1,130 @@
 import os
 import re
 import pandas as pd
-from scipy.optimize import minimize_scalar
 from scipy.optimize import minimize
 from scipy import interpolate
 import numpy as np
 import matplotlib.pyplot as plt
 
-# define the function to minimize
-def func_pb(params):    
-    # get the parameters
-    c = params[0]
-    d = params[1]
-    
+# create class for data
+class DataSet:
+    def __init__(self, delta, data):
+        self.delta = delta
+        self.data = data
+
+# create global variables
+data = []
+critical_lambda = 3.29785
+initial_guess = [0.16, 1.7]
+
+def initialisation():
     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+    dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data for CP
+    # dir_path = os.path.join(root_path, 'data/bachelor_process/output/') # regular data for BP
+
     # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
-    dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling    
+    # dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for finite size scaling    
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
 
-    # create a list of lattice lengths
-    lattice_lengths = []
-
-    # convert each file to a list of tuples
-    data = [] # data[i][j][k] -> i = list, j = pair in list, k = [0,1] -> 0 = t, 1 = density
-
     for csv_file in csv_files:
         csv_path = os.path.join(dir_path, csv_file)
         df = pd.read_csv(csv_path)
-        data.append(df.to_numpy())
 
         # get the lattice length from the file name
-        m = re.search("lambda_([\d\.]+)_size_(\d+)\.csv", csv_file)
-        lattice_lengths.append(int(m.group(2)))    
+        match = re.search("lambda_([\d\.]+)_size_(\d+)\.csv", csv_file)
+
+        # calculate the delta
+        curr_lambda = float(match.group(1))
+        delta = curr_lambda - critical_lambda
+
+        # ignore the data from the critical point (has no contribution)
+        if delta == 0:
+            continue
         
-    N = 0
-    estimated_residual_sum = 0
+        ds = DataSet(delta, df)
+        data.append(ds)
 
-    # sum over over each list
-    for p in range(len(data)):
+def interpolation_function(x, reference_data):
+    # if x is in the range of the reference data
+    if x < reference_data[0][0] or x > reference_data[-1][0]:
+        return np.nan
 
-        # interpolate the data using scipy.interpolate
-        t = [data[p][i][0] for i in range(len(data[p]))]
-        rho = [data[p][i][1] for i in range(len(data[p]))]
-        f = interpolate.interp1d(t, rho, kind='cubic')
+    func = interpolate.CubicSpline(reference_data[:,0], reference_data[:,1], extrapolate=False)
+
+    return func(x)
+
+
+def calculate_estimated_residuals(initial_guess):
+    alpha = initial_guess[0]
+    nu = initial_guess[1]
+
+    sum_residuals = 0
+    N_over = 0
+
+    # loop over all data sets
+    for p in data:
+        # get the delta and the data
+        df = p.data
+
+        # convert the dataframe to a numpy array
+        reference_data = df.to_numpy()
+
+        print(f"Calculating for delta = {p.delta}...", end="\r")
+
+        # loop over every other data set
+        for j in data:
+            if j == p:
+                continue
         
-        # sum over data[p] every list that isn't data[p]
-        for j in range(len(data)):
-            if j != p:
-                # get the overlapping interval
-                start, end = get_overlapping_interval(data[p], data[j])
+            # get the delta and the data
+            delta_j = round(j.delta, 4)
+            df = j.data
 
-                # sum over each pair in the overlapping interval
-                for i in range(len(data[j])):
-                    if data[j][i][0] >= start and data[j][i][0] <= end:
-                        N += 1 # calculating N_over
-                        
-                        t = data[j][i][0] # magic number 0 = t
-                        m = data[j][i][1] # magic number 1 = density
-                        
-                        L = lattice_lengths[j]
-                        x = L ** (-c) * t
-                        
-                        left_term = (L**(-d) * m)
-                        rho = f(x)
+            # convert the dataframe to a numpy array
+            working_data = df.to_numpy()
 
-                        # calculate the error
-                        estimated_residual = abs(left_term - rho)
+            # loop over all the rows in the data
+            for i in range(len(working_data)):
+                # calculate the terms from the tabulated data
+                t = working_data[i][0]
+                rho = working_data[i][1]
 
-                        #add up all the estimated residuals
-                        estimated_residual_sum += estimated_residual
+                # calculate the terms from the working data
+                left_term = (t**alpha) * rho
+                right_term = interpolation_function((t**(-1/nu)) * delta_j**(-1), reference_data)
 
-    # calculate the average estimated residual
-    average_estimated_residual = estimated_residual_sum / N
+                if np.isnan(right_term):
+                    continue
 
-    return average_estimated_residual
+                N_over += 1
+                sum_residuals += (left_term - right_term)
 
-def get_overlapping_interval(data1, data2):
-    # get the lowest t value of the two data sets
-    t1_min = data1[0][0]
-    t2_min = data2[0][0]
-    t_min = max(t1_min, t2_min)
+    if N_over == 0:
+        return 1000
+    
+    sum_residuals = sum_residuals / N_over
 
-    #get the highest t value of the two data sets
-    t1_max = data1[-1][0]
-    t2_max = data2[-1][0]
-    t_max = min(t1_max, t2_max)
+    # print the sum of the residuals and overwite the previous line
+    print(f"Sum of residuals: {sum_residuals} for alpha = {alpha} and nu = {nu}", end="\r")
 
-    return t_min, t_max
+    return sum_residuals
 
+def main():
+    # initialise the data
+    initialisation()
+    
+    calculate_estimated_residuals(initial_guess)
+    print()
 
-def main():    
-    # minimize func_pb
-    initial_guess = [1, 1]
-    res = minimize(func_pb, initial_guess)
-    print(res.x)
+    # print("=== MINIMISING ===")
+    # result = minimize(calculate_estimated_residuals, initial_guess, method='Nelder-Mead')
+    # print()
+    # print(result)
+
 
 if __name__ == "__main__":
     main()
