@@ -8,8 +8,8 @@ from matplotlib.gridspec import GridSpec
 def finite_plotter(alpha, z, ax):
     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for the contact process
-    dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for the bachelor process
+    dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for the contact process
+    # dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for the bachelor process
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -40,15 +40,15 @@ def finite_plotter(alpha, z, ax):
             if t < 1:
                 continue
 
-            x_axis.append(t / size**z)
-            y_axis.append(density * (t ** alpha))
+            x_axis.append(t * (size**-z))
+            y_axis.append(density * (size ** (alpha*z)))
         
         # add the dataframe to the plot
         ax.plot(x_axis, y_axis, label=f"L={size}")
 
     # Set label and title
-    ax.set_xlabel(r'$\frac{t}{L^z}$')
-    ax.set_ylabel(r'$\rho(t) t^\alpha$')
+    ax.set_xlabel(r'$L^{-z} t$')
+    ax.set_ylabel(r'$L^{\alpha z} \rho(t) $')
     ax.set_title('Finite Size Scaling')
     
     ax.tick_params(axis='both', which='major', labelsize=12)
@@ -75,7 +75,7 @@ def finite_plotter(alpha, z, ax):
 
 if __name__ == '__main__':
     # defining parameter
-    alpha = 0.232
+    alpha = 0.16
     z = 1.6 #this is our guess
 
     #create the figure and the axes
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     text_box_alpha.set_val(alpha)
 
     left, bottom, width, height = 0.125, 0.005, 0.04, .025
-    axbox_text_z = fig.add_axes([left, bottom, width, h0eight])
+    axbox_text_z = fig.add_axes([left, bottom, width, height])
     text_box_z = TextBox(axbox_text_z, "z:   ")
     text_box_z.set_val(z)
 
