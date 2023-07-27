@@ -31,10 +31,7 @@ int main(int argc, char *argv[]) {
     std::string metadataString = "simulation time: " + std::to_string(simulationTime) + "\n";
     metadataString += "ensemble size: " + std::to_string(ensembleSize) + "\n";    
     metadata << metadataString;
-
-    // run the simulation for infectionRate +- a delta
-    double delta = 0.0128;
-    int range = 10;
+    metadata.close();
 
     int iteration = 1;
 
