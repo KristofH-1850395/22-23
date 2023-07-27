@@ -1,113 +1,173 @@
 import os
-import pandas as pd
-import matplotlib.pyplot as plt
 import re
-from matplotlib.widgets import TextBox, Button
-from matplotlib.gridspec import GridSpec
+import pandas as pd
+from scipy.optimize import minimize
+from scipy import interpolate
+import numpy as np
+import matplotlib.pyplot as plt
 
-def finite_plotter(alpha, z, ax):
+# create class for data
+class DataSet:
+    def __init__(self, lattice_length, data):
+        self.lattice_length = lattice_length
+        self.data = data
+
+# create global variables
+data = []
+initial_guess = [1.58, -0.2528] # [c, d] = [z, -alpha * z] --- from literature for CP
+
+def initialisation():
     # get the path of the data folder
     root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for the contact process
-    # dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for the bachelor process
+    dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # cp
+    # dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # bp
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
 
-    # Loop through all the CSV files and append the data to the DataFrame
-    for csv_file in csv_files:        
-        # create an empty DataFrame to store all the data
-        data = pd.DataFrame()
-
-        # define size from file name
-        m = re.search("lambda_([\d\.]+)_size_(\d+)\.csv", csv_file)
-        size = int(m.group(2))
-
-        # read the csv file
+    for csv_file in csv_files:
         csv_path = os.path.join(dir_path, csv_file)
-        data = pd.read_csv(csv_path)
+        df = pd.read_csv(csv_path)
 
-        # convert data to tuple
-        data = data.to_numpy()
-        x_axis = []
-        y_axis = []
+        # get the lattice length from the file name
+        match = re.search("lambda_([\d\.]+)_size_(\d+)\.csv", csv_file)
+        lattice_length = int(match.group(2))
+        
+        ds = DataSet(lattice_length, df)
+        data.append(ds)
 
-        # loop through the data and scale it
-        for i in range(len(data)):
-            t = data[i][0]
-            density = data[i][1]            
+def trim_data(df):
+    # trim the data for low t
+    df = df[df['t'] > 10]
 
-            if t < 1:
+    # trim the data if the density is zero
+    df = df[df['density'] > 0.01]
+
+    return df
+
+def scale_data(data, L, c, d):
+    x_axis = []
+    y_axis = []
+
+    for i in range(len(data)):
+        t = data[i][0]
+        density = data[i][1]
+
+        x_axis.append(t * (L**-c))
+        y_axis.append(density * (L ** -d))
+
+    return x_axis, y_axis
+
+# returns the interpolation function and the x-axis limits
+def calculate_interpolation_function(data, L, c, d):
+    # scale the data
+    x_axis, y_axis = scale_data(data, L, c, d)
+
+    # create interpolation function
+    f = interpolate.CubicSpline(x_axis, y_axis, extrapolate=None)
+
+    return f, [x_axis[0], x_axis[-1]]
+
+# calculate the residuals for the given parameters
+def calculate_estimated_residuals(initial_guess):
+    c = initial_guess[0] # c = z
+    d = initial_guess[1] # d = - alpha * z
+
+    sum_residuals = 0
+    N_over = 0
+
+    # loop through all the data sets
+    for p in data:
+        # get lattice length and dataset
+        L_p, data_p = p.lattice_length, p.data.to_numpy()
+        f, [x_min, x_max] = calculate_interpolation_function(data_p, L_p, c, d)
+
+        # loop through all the other data sets
+        for j in data:
+
+            # get lattice length and dataset
+            L_j = j.lattice_length
+
+            # ignore the same data set
+            if L_j == L_p:
                 continue
 
-            x_axis.append(t * (size**-z))
-            y_axis.append(density * (size ** (alpha*z)))
-        
-        # add the dataframe to the plot
-        ax.plot(x_axis, y_axis, label=f"L={size}")
+            data_j = trim_data(j.data).to_numpy()
+
+            # scale the data
+            x_j, y_j = scale_data(data_j, L_j, c, d)
+
+            # plot the interpolation function against the data
+            x_overlapping = []
+            y_overlapping = []
+
+            # loop through all the points
+            for i in range(len(x_j)):
+                x_ij = x_j[i]
+                y_ij = y_j[i]
+
+                # ignore points outside the interpolation range
+                if x_ij < x_min or x_ij > x_max:
+                    continue
+
+                x_overlapping.append(x_ij)
+                y_overlapping.append(y_ij)
+
+                # calculate the residual
+                sum_residuals += abs(y_ij - f(x_ij)) / (y_ij + f(x_ij))
+                N_over += 1
+
+    if N_over == 0:
+        return 99 # randomly chosen error code, if no overlapping pairs then we should reject the parameters
+    
+    # print the sum of the residuals
+    print(f"sum of residuals: {sum_residuals / N_over} for c={c} and d={d}", end="\r")
+
+    return sum_residuals / N_over
+
+def plot_data(data, best_c, best_d):
+    # loop through all the data sets
+    for p in data:
+        # get lattice length and dataset
+        L, data_set = p.lattice_length, trim_data(p.data).to_numpy()
+
+        # scale the data
+        x_axis, y_axis = scale_data(data_set, L, best_c, best_d)
+
+        # plot the data
+        plt.plot(x_axis, y_axis, label=f"L={L}")
+
+    # determine exponents so we can show them in the title
+    z = round(best_c, 2)
+    alpha = round(-best_d / best_c, 2)
 
     # Set label and title
-    ax.set_xlabel(r'$L^{-z} t$')
-    ax.set_ylabel(r'$L^{\alpha z} \rho(t) $')
-    ax.set_title('Finite Size Scaling')
-    
-    ax.tick_params(axis='both', which='major', labelsize=12)
-    ax.xaxis.label.set_size(20)
-    ax.yaxis.label.set_size(20)
-    ax.title.set_size(30)
+    plt.xlabel(r'$L^{-z} t$', size=20)
+    plt.ylabel(r'$L^{\alpha z} \rho(t) $', size=20)
+    plt.title(rf'Finite Size Scaling: $\alpha = {alpha}$, $z = {z}$', size=30)    
+    plt.tick_params(axis='both', which='major', labelsize=12)
 
     # set the axis to log scale
-    ax.set_xscale('log')
-    # ax.set_xlim(1e-4, 1e1)
-    ax.set_yscale('log')
-    # ax.set_ylim(1e-2, 1e0)
-
-    # add a legend
-    ax.legend()
-
+    plt.xscale('log')
+    plt.yscale('log')
+    
     # sort both labels and handles by labels
-    handles, labels = ax.get_legend_handles_labels()
+    handles, labels = plt.gca().get_legend_handles_labels()
     labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
-    ax.legend(handles, labels)
+    plt.legend(handles, labels)
 
-    # show the plot
     plt.show()
 
-if __name__ == '__main__':
-    # defining parameter
-    alpha = 0.16
-    z = 1.6 #this is our guess
+def main():
+    # initialise the data
+    initialisation()
 
-    #create the figure and the axes
-    fig, ax = plt.subplots()
-    gs = GridSpec(6, 5, figure=fig)
+    # minimise the residuals
+    result = minimize(calculate_estimated_residuals, initial_guess, method='Nelder-Mead')
+    best_c = result.x[0]
+    best_d = result.x[1]
 
-    #create the text box and the button  
-    left, bottom, width, height = 0.125, 0.035, 0.04, 0.025
-    axbox_text_alpha = fig.add_axes([left, bottom, width, height])
-    text_box_alpha = TextBox(axbox_text_alpha, "alpha:   ")
-    text_box_alpha.set_val(alpha)
+    plot_data(data, best_c, best_d)
 
-    left, bottom, width, height = 0.125, 0.005, 0.04, .025
-    axbox_text_z = fig.add_axes([left, bottom, width, height])
-    text_box_z = TextBox(axbox_text_z, "z:   ")
-    text_box_z.set_val(z)
-
-    left, bottom, width, height = 0.17, 0.005, 0.1, 0.055
-    axbox_button = fig.add_axes([left, bottom, width, height])
-    button = Button(axbox_button, "Update")
-
-    #define the function that will be called when the button is pressed
-    def submit(expression):
-        if expression.inaxes == axbox_button: # Make sure the button was pressed
-            ax.lines.clear()
-            finite_plotter(float(text_box_alpha.text), float(text_box_z.text), ax)
-
-    # Connect the button event with the function submit
-    text_box_alpha.disconnect(text_box_alpha.disconnect_events) # Disconnect all other events
-    text_box_alpha.connect_event('button_press_event', submit) # Connect the button event
-
-    text_box_z.disconnect(text_box_z.disconnect_events) # Disconnect all other events
-    text_box_z.connect_event('button_press_event', submit) # Connect the button event
-    
-    finite_plotter(alpha, z, ax)
+if __name__ == "__main__":
+    main()
