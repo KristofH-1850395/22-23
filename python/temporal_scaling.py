@@ -8,24 +8,26 @@ import numpy as np
 
 # create class for data
 class DataSet:
-    def __init__(self, lattice_length, data):
-        self.lattice_length = lattice_length
+    def __init__(self, delta, data): 
+        self.delta = delta
         self.data = data
 
 # create global variables
 data = []
 
 # ==== CP ====
-# initial_guess = [1.58, -0.2528] # [c, d] = [z, -alpha * z] --- from literature
-# path_to_data = 'data/contact_process/output_finite'
-#
-# ==== BP ====
-initial_guess = [1.7363122606649988, -0.39678649038612845] # [c, d] = [z, -alpha * z]
-path_to_data = 'data/bachelor_process/output_finite'
+# initial_guess = [0.58, -0.16] # [c, d] = [nu^-1, -alpha] --- from literature
+# path_to_data = 'data/contact_process/output'
+# lambda_critical = 3.29785 # from literature
+# 
+# ==== BP ====  
+initial_guess = [0.40999546610813586, -0.23271706196367742] # [c, d] = [nu^-1, -alpha]
+path_to_data = 'data/bachelor_process/output'
+lambda_critical = 0.65768
 
 def initialisation():
     # get the path of the data folder
-    root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
     dir_path = os.path.join(root_path, path_to_data)
 
     # Get all CSV files in the directory
@@ -35,11 +37,15 @@ def initialisation():
         csv_path = os.path.join(dir_path, csv_file)
         df = pd.read_csv(csv_path)
 
-        # get the lattice length from the file name
+        # get the delta from the file name
         match = re.search("lambda_([\d\.]+)_size_(\d+)\.csv", csv_file)
-        lattice_length = int(match.group(2))
+        current_lambda = float(match.group(1))
+        delta = round(current_lambda - lambda_critical, 4)
+
+        if delta == 0:
+            continue
         
-        ds = DataSet(lattice_length, df)
+        ds = DataSet(delta, df)
         data.append(ds)
 
 def trim_data(df):
@@ -51,7 +57,7 @@ def trim_data(df):
 
     return df
 
-def scale_data(data, L, c, d):
+def scale_data(data, delta, c, d):
     x_axis = []
     y_axis = []
 
@@ -59,15 +65,20 @@ def scale_data(data, L, c, d):
         t = data[i][0]
         density = data[i][1]
 
-        x_axis.append(t * (L**-c))
-        y_axis.append(density * (L ** -d))
+        x_axis.append((t ** c) * delta)
+        y_axis.append(density * (t ** -d))
 
     return x_axis, y_axis
 
 # returns the interpolation function and the x-axis limits
-def calculate_interpolation_function(data, L, c, d):
+def calculate_interpolation_function(data, delta, c, d):
     # scale the data
-    x_axis, y_axis = scale_data(data, L, c, d)
+    x_axis, y_axis = scale_data(data, delta, c, d)
+
+    if delta < 0:
+        # reverse x_axis and y_axis
+        x_axis = x_axis[::-1]
+        y_axis = y_axis[::-1]
 
     # create interpolation function
     f = interpolate.CubicSpline(x_axis, y_axis, extrapolate=None)
@@ -76,8 +87,8 @@ def calculate_interpolation_function(data, L, c, d):
 
 # calculate the residuals for the given parameters
 def calculate_estimated_residuals(initial_guess):
-    c = initial_guess[0] # c = z
-    d = initial_guess[1] # d = - alpha * z
+    c = initial_guess[0] 
+    d = initial_guess[1] 
 
     sum_residuals = 0
     N_over = 0
@@ -85,23 +96,26 @@ def calculate_estimated_residuals(initial_guess):
     # loop through all the data sets
     for p in data:
         # get lattice length and dataset
-        L_p, data_p = p.lattice_length, p.data.to_numpy()
-        f, [x_min, x_max] = calculate_interpolation_function(data_p, L_p, c, d)
+        delta_p, data_p = p.delta, p.data.to_numpy()
+        f, [x_min, x_max] = calculate_interpolation_function(data_p, delta_p, c, d)
 
         # loop through all the other data sets
         for j in data:
-
             # get lattice length and dataset
-            L_j = j.lattice_length
+            delta_j = j.delta
 
             # ignore the same data set
-            if L_j == L_p:
+            if delta_j == delta_p:
                 continue
 
             data_j = trim_data(j.data).to_numpy()
 
             # scale the data
-            x_j, y_j = scale_data(data_j, L_j, c, d)
+            x_j, y_j = scale_data(data_j, delta_j, c, d)
+
+            # plot the interpolation function against the data
+            x_overlapping = []
+            y_overlapping = []
 
             # loop through all the points
             for i in range(len(x_j)):
@@ -111,6 +125,9 @@ def calculate_estimated_residuals(initial_guess):
                 # ignore points outside the interpolation range
                 if x_ij < x_min or x_ij > x_max:
                     continue
+
+                x_overlapping.append(x_ij)
+                y_overlapping.append(y_ij)
 
                 # calculate the residual
                 sum_residuals += abs(y_ij - f(x_ij)) / (y_ij + f(x_ij))
@@ -145,27 +162,28 @@ def plot_data(data, best_c, best_d):
     # loop through all the data sets
     for p in data:
         # get lattice length and dataset
-        L, data_set = p.lattice_length, trim_data(p.data).to_numpy()
+        delta, data_set = p.delta, trim_data(p.data).to_numpy()
 
         # scale the data
-        x_axis, y_axis = scale_data(data_set, L, best_c, best_d)
+        x_axis, y_axis = scale_data(data_set, delta, best_c, best_d)
 
         # plot the data
-        plt.plot(x_axis, y_axis, label=f"L={L}")
+        # determine which multiple of delta_lambda it is
+        multiple = int(round(delta/0.0128, 0))
+        if multiple > 0:
+            plt.plot(x_axis, y_axis, label=fr"$ \lambda_c + {multiple} \Delta$")
+        else:
+            plt.plot(x_axis, y_axis, label=fr"$ \lambda_c {multiple} \Delta$")
 
     # determine exponents so we can show them in the title
-    z = round(best_c, 2)
-    alpha = round(-best_d / best_c, 2)
+    nu = round(1 / best_c, 3)
+    alpha = round(-best_d, 3)
 
     # Set label and title
-    plt.xlabel(r'$L^{-z} t$', size=20)
-    plt.ylabel(r'$L^{\alpha z} \rho(t) $', size=20)
-    plt.title(rf'Finite Size Scaling: $\alpha = {alpha}$, $z = {z}$', size=30)    
+    plt.xlabel(r'$t^{1/\nu_{//}} \Delta$', size=20)
+    plt.ylabel(r'$\rho(t) t^\alpha$', size=20)
+    plt.title(rf'Scaling Relation of the Density: $\nu = {nu}$, $\alpha = {alpha}$', size=30)
     plt.tick_params(axis='both', which='major', labelsize=12)
-
-    # set the axis to log scale
-    plt.xscale('log')
-    plt.yscale('log')
     
     # sort both labels and handles by labels
     handles, labels = plt.gca().get_legend_handles_labels()
@@ -180,18 +198,16 @@ def main():
 
     # minimise the residuals
     result = minimize(calculate_estimated_residuals, initial_guess, method='Nelder-Mead')
-    print()
-
     c_0 = result.x[0]
-    d_0 = result.x[1]
+    d_0 = result.x[1]    
 
     # determine the error
     delta_c, delta_d = determine_error([c_0, d_0])
 
     # print the results
     print("=== RESULTS ===")
-    print(f"z = {c_0} +- {delta_c}")
-    print(f"alpha = {-d_0 / c_0} +- {delta_d / c_0}")
+    print(f"alpha = {-d_0} +- {delta_d}")
+    print(f"nu = {1/c_0} +- {delta_c}")
     print("===============")
 
     plot_data(data, c_0, d_0)
