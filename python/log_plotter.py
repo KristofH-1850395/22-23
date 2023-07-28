@@ -95,7 +95,7 @@ def plotter():
     y_exp = np.exp(y)
 
     # plot the line in black
-    label = f"y = {alpha}x + {b}"
+    label = f"y = {round(alpha, 3)}x + {round(b, 2)}"
     ax.plot(x_exp, y_exp, color='black', label=label)
     print(f"best alpha: {best_alpha} with r squared: {best_r_squared} and b: {best_b} for lambda: {critical_lambda}")
 
