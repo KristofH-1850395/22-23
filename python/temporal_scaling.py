@@ -135,11 +135,19 @@ def calculate_estimated_residuals(initial_guess):
 
     if N_over == 0:
         return 99 # randomly chosen error code, if no overlapping pairs then we should reject the parameters
-    
-    # print the sum of the residuals
-    print(f"sum of residuals: {sum_residuals / N_over} for c={c} and d={d}", end="\r")
 
     return sum_residuals / N_over
+
+    c = intermediate_parameters[0]
+    d = intermediate_parameters[1]
+
+    print(f"current c: {c} and d: {d}", end="\r")
+
+def report_progress(x):
+    c = x[0]
+    d = x[1]
+
+    print(f"current c: {c} and d: {d}")
 
 def determine_error(optimal_parameters):
     width = 0.01
@@ -152,9 +160,9 @@ def determine_error(optimal_parameters):
 
     c_lower, c_upper = np.sqrt(2 * np.log(c_bounds[0] / norm)), np.sqrt(2 * np.log(c_bounds[1] / norm))
     d_lower, d_upper = np.sqrt(2 * np.log(d_bounds[0] / norm)), np.sqrt(2 * np.log(d_bounds[1] / norm))
-
-    delta_c = width * c_0 * (c_upper - c_lower)
-    delta_d = width * d_0 * (d_upper - d_lower)
+    
+    delta_c = width * c_0 * abs(c_upper - c_lower)
+    delta_d = width * d_0 * abs(d_upper - d_lower)
 
     return delta_c, delta_d
 
@@ -197,9 +205,9 @@ def main():
     initialisation()
 
     # minimise the residuals
-    result = minimize(calculate_estimated_residuals, initial_guess, method='Nelder-Mead')
+    result = minimize(calculate_estimated_residuals, initial_guess, method='Nelder-Mead', callback=report_progress)
     c_0 = result.x[0]
-    d_0 = result.x[1]    
+    d_0 = result.x[1]
 
     # determine the error
     delta_c, delta_d = determine_error([c_0, d_0])
