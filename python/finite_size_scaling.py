@@ -125,9 +125,6 @@ def calculate_estimated_residuals(initial_guess):
     if N_over == 0:
         return 99 # randomly chosen error code, if no overlapping pairs then we should reject the parameters
     
-    # print the sum of the residuals
-    print(f"sum of residuals: {sum_residuals / N_over} for c={c} and d={d}", end="\r")
-
     return sum_residuals / N_over
 
 # callback function for the minimisation
@@ -149,8 +146,8 @@ def determine_error(optimal_parameters):
     c_lower, c_upper = np.sqrt(2 * np.log(c_bounds[0] / norm)), np.sqrt(2 * np.log(c_bounds[1] / norm))
     d_lower, d_upper = np.sqrt(2 * np.log(d_bounds[0] / norm)), np.sqrt(2 * np.log(d_bounds[1] / norm))
 
-    delta_c = width * c_0 * abs(c_upper - c_lower)
-    delta_d = width * d_0 * abs(d_upper - d_lower)
+    delta_c = abs(width * c_0 * (c_upper - c_lower))
+    delta_d = (width * d_0 * (d_upper - d_lower))
 
     return delta_c, delta_d
 
@@ -180,10 +177,10 @@ def plot_data(data, best_c, best_d):
     plt.xscale('log')
     plt.yscale('log')
     
-    # sort both labels and handles by labels
+    # sort both labels and handles by labels, we want to use the numerical value following the equal sign
     handles, labels = plt.gca().get_legend_handles_labels()
-    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
-    plt.legend(handles, labels)
+    labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: int(t[0].split("=")[1])))
+    plt.legend(handles, labels, fontsize=16)
 
     plt.show()
 
