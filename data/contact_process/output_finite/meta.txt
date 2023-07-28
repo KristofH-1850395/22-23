@@ -1,2 +1,0 @@
-simulation time = 1e4
-ensemble size = 1e3

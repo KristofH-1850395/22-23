@@ -34,7 +34,7 @@ def plotter():
 
     # dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data for CP
     # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
-    dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for BP
+    dir_path = os.path.join(root_path, 'data/bachelor_process/output/') # regular data for BP
     # dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for finite size scaling
 
     # Get all CSV files in the directory
@@ -44,7 +44,7 @@ def plotter():
     best_r_squared = 0
     best_alpha = 0
     best_b = 0
-    critical_lambda = 0
+    critical_lambda = 0 
     
      #create the figure and the axes
     fig, ax = plt.subplots()
@@ -65,7 +65,7 @@ def plotter():
         # add the dataframe to the plot
         ax.plot(data['t'], data['density'], label=label)
 
-        # we only want to fit the data for the interval (10, 100)
+        # we only want to fit the data for the interval (1, 1000)
         for i in data['t']:
             if i > 0:
                 # get index of i
