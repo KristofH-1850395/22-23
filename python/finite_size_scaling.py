@@ -1,3 +1,9 @@
+# =======================================================================
+# ===Script for calculating the exponents alpha and nu_perpandicular=====
+# ===We use a finite size scaling in the critical point==================
+# ===will also plot the relation with the determined exponents===========
+# =======================================================================
+
 import os
 import re
 import pandas as pd

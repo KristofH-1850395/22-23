@@ -1,4 +1,9 @@
-#this file will plot all the data in the data folder in a log log plot
+# ===========================================================================================================================================
+# ===Script for calculating the exponent alpha and finding the critical lambda===============================================================
+# ===Plots the data in a log-log plot and look for a linear relation (dataset following a power law at the critical point)===================
+# ===note: in the bachelor process, all graphs under the critical point end up following a power law (exp = 0.5) due to the mixing process===
+# ===========================================================================================================================================
+
 import os
 import re
 import pandas as pd

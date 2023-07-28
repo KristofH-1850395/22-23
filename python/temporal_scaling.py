@@ -1,3 +1,9 @@
+# =======================================================================
+# ===Script for calculating the exponents alpha and nu_//================
+# ===We use a scaling relation valid for small t and large L=============
+# ===will also plot the relation with the determined exponents===========
+# =======================================================================
+
 import os
 import re
 import pandas as pd
