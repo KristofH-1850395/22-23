@@ -5,8 +5,8 @@ class AbstractProcess {
         virtual void create(int x, int y) = 0;
         virtual void annihilate(int x) = 0;
 
-        void setInfectionRate(float infectionRate) {this->infectionRate = infectionRate;}
-        float getInfectionRate() { return this->infectionRate; }
+        void setContaminationRate(float contaminationRate) {this->contaminationRate = contaminationRate;}
+        float getContaminationRate() { return this->contaminationRate; }
 
         void setDensity(float density) { this->density = density; }
         float getDensity() { return this->density; }
@@ -28,7 +28,7 @@ class AbstractProcess {
         virtual void updateDensity() = 0;
         int getRandomNeighbour(int x);
         int latticeSize;
-        float infectionRate;
+        float contaminationRate;
         float density;
         float creationProbability;
         float normalisation;

@@ -8,7 +8,7 @@
 
 class ContactProcess: public AbstractProcess {
     public:
-        ContactProcess(float infectionRate, int systemSize);
+        ContactProcess(float contaminationRate, int systemSize);
 
         void create(int x, int y);
         void annihilate(int x);

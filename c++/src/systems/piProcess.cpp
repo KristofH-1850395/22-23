@@ -1,9 +1,9 @@
-#include "../../include/bachelorProcess.h"
+#include "../../include/piProcess.h"
 #include "math.h"
 
-BachelorProcess::BachelorProcess(float infectionRate, int systemSize) {
+PiProcess::PiProcess(float infectionRate, int systemSize) {
     // note for the reader: one A particle is equivalent to two B particles, as such we have density between 0 and 2
-    this->infectionRate = infectionRate;
+    this->contaminationRate = infectionRate;
     this->density = 2; // one A particle per site
     this->normalisation = (1 + (6 * infectionRate));
     this->creationProbability = (2 * infectionRate) / normalisation;
@@ -17,7 +17,7 @@ BachelorProcess::BachelorProcess(float infectionRate, int systemSize) {
     }
 }
 
-void BachelorProcess::create(int x, int y) {
+void PiProcess::create(int x, int y) {
     // create an A particle if A or B neighbours a vacant site
     if ((this->lattice[x] == 'A' || this->lattice[x] == 'B') && this->lattice[y] == '0') {
         this->lattice[y] = 'A';
@@ -27,7 +27,7 @@ void BachelorProcess::create(int x, int y) {
     updateDensity();
 }
 
-void BachelorProcess::annihilate(int x) {
+void PiProcess::annihilate(int x) {
     if (this->lattice[x] == 'A') {
         this->lattice[x] = '0';
         this->particleCountA--;
@@ -36,7 +36,7 @@ void BachelorProcess::annihilate(int x) {
     updateDensity();
 }
 
-void BachelorProcess::mix(int x, int y) {
+void PiProcess::mix(int x, int y) {
     if (this->lattice[x] == 'A' && this->lattice[y] == 'B') {
         this->lattice[x] = 'B';
         this->lattice[y] = 'A';
@@ -57,12 +57,12 @@ void BachelorProcess::mix(int x, int y) {
     updateDensity();
 }
 
-void BachelorProcess::updateDensity() {
+void PiProcess::updateDensity() {
     // note for the reader: one A particle is equivalent to two B particles, as such we have density between 0 and 2
     this->density = (((float)this->particleCountA * 2) + (float)this->particleCountB) / (float)this->latticeSize;
 }
 
-void BachelorProcess::monteCarloStep() {
+void PiProcess::monteCarloStep() {
     // choose a random index between 0 and latticeSize
     int x = rand() % this->latticeSize;
 

@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[]) {
     if (argc != 5) {
-        std::cout << "Syntax: " << argv[0] << " <simulationTime> <infectionRate> <ensembleSize> <outputPath>" << std::endl;
+        std::cout << "Syntax: " << argv[0] << " <simulationTime> <contaminationRate> <ensembleSize> <outputPath>" << std::endl;
 
         return 1;
     }
@@ -16,8 +16,8 @@ int main(int argc, char *argv[]) {
     // int simtime = the first argument
     int simulationTime = std::atoi(argv[1]);
 
-    // float infectionRate = the second argument
-    float infectionRate = std::atof(argv[2]);
+    // float contaminationRate = the second argument
+    float contaminationRate = std::atof(argv[2]);
 
     // int ensembleSize = the third argument
     int ensembleSize = std::atoi(argv[3]);
@@ -32,15 +32,15 @@ int main(int argc, char *argv[]) {
     metadata << metadataString;
     metadata.close();
 
-    // run the simulation for infectionRate +- a delta
+    // run the simulation for contaminationRate +- a delta
     double delta = 0.0128;
     int range = 10;
 
     int iteration = 1;
 
-    for (double lambda = infectionRate - (delta * range); lambda <= infectionRate + (delta * range); lambda += delta) {
+    for (double lambda = contaminationRate - (delta * range); lambda <= contaminationRate + (delta * range); lambda += delta) {
        std::cout << "Iteration " << iteration << "/" << (2 * range) + 1 << std::endl;
-        Application::simulateBachelorProcess(simulationTime, ensembleSize, lambda, 1000, outputPath);
+        Application::simulatePiProcess(simulationTime, ensembleSize, lambda, 1000, outputPath);
 
         iteration++;
     }

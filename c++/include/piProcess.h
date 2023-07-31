@@ -5,9 +5,9 @@
 
 #include <vector>
 
-class BachelorProcess: public AbstractProcess {
+class PiProcess: public AbstractProcess {
     public:
-        BachelorProcess(float infectionRate, int systemSize);
+        PiProcess(float contaminationRate, int systemSize);
         
         void create(int x, int y);
         void mix(int x, int y);

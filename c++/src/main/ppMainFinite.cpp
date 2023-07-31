@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[]) {
     if (argc != 5) {
-        std::cout << "Syntax: " << argv[0] << " <simulationTime> <infectionRate> <ensembleSize> <outputPath>" << std::endl;
+        std::cout << "Syntax: " << argv[0] << " <simulationTime> <contaminationRate> <ensembleSize> <outputPath>" << std::endl;
 
         return 1;
     }
@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
     // int simtime = the first argument
     int simulationTime = std::atoi(argv[1]);
 
-    // float infectionRate = the second argument
-    float infectionRate = std::atof(argv[2]);
+    // float contaminationRate = the second argument
+    float contaminationRate = std::atof(argv[2]);
 
     // int ensembleSize = the third argument
     int ensembleSize = std::atoi(argv[3]);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 
     for (int systemSize = 8; systemSize <= pow(2,12); systemSize *= 2) {
         std::cout << "Iteration " << iteration << std::endl;
-        Application::simulateBachelorProcess(simulationTime, ensembleSize, infectionRate, systemSize, outputPath);
+        Application::simulatePiProcess(simulationTime, ensembleSize, contaminationRate, systemSize, outputPath);
 
         iteration++;
     }

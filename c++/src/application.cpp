@@ -1,14 +1,14 @@
 #include "../include/application.h"
-#include "../include/bachelorProcess.h"
+#include "../include/piProcess.h"
 #include "../include/contactProcess.h"
 #include <fstream>
 #include <iostream>
 #include <cmath>
 #include "omp.h"
 
-void Application::writeData(std::vector<std::pair<double, double>> data, float infectionRate, int latticeSize, std::string filePath) {
+void Application::writeData(std::vector<std::pair<double, double>> data, float contaminationRate, int latticeSize, std::string filePath) {
     // write avg_data to output.csv
-    std::ofstream output(filePath + "lambda_" + std::to_string(infectionRate) + "_size_" + std::to_string(latticeSize) + ".csv");
+    std::ofstream output(filePath + "lambda_" + std::to_string(contaminationRate) + "_size_" + std::to_string(latticeSize) + ".csv");
     std::string outputString = "t,density\n";
 
     for (int i = 0; i < data.size(); i++) {
@@ -49,16 +49,16 @@ std::vector<std::pair<double, double>> Application::averageData(std::vector<dict
     return averageData;
 }
 
-void Application::simulateContactProcess(int simulationTime, int ensembleSize, float infectionRate, int latticeSize, std::string filePath) {
+void Application::simulateContactProcess(int simulationTime, int ensembleSize, float contaminationRate, int latticeSize, std::string filePath) {
     std::vector<dictItem> dataDict;
 
     for (int i = 0; i < ensembleSize; i++) {
         // report progress every 100 simulations
         if (i % 100 == 0) {
-            std::cout << "for infectionRate: " << infectionRate <<  " --- running simulation " << i << " of " << ensembleSize << std::endl;
+            std::cout << "for contaminationRate: " << contaminationRate <<  " --- running simulation " << i << " of " << ensembleSize << std::endl;
         }
 
-        ContactProcess process(infectionRate, latticeSize);
+        ContactProcess process(contaminationRate, latticeSize);
 
         dataDict.push_back(Application::monteCarlo(process, simulationTime));
     }
@@ -67,19 +67,19 @@ void Application::simulateContactProcess(int simulationTime, int ensembleSize, f
     std::cout << "averaging data" << std::endl; 
     std::vector<std::pair<double, double>> avg_data = Application::averageData(dataDict);
     std::cout << "writing data" << std::endl; 
-    Application::writeData(avg_data, infectionRate, latticeSize, filePath);
+    Application::writeData(avg_data, contaminationRate, latticeSize, filePath);
 }
 
-void Application::simulateBachelorProcess(int simulationTime, int ensembleSize, float infectionRate, int latticeSize, std::string filePath) {
+void Application::simulatePiProcess(int simulationTime, int ensembleSize, float contaminationRate, int latticeSize, std::string filePath) {
     std::vector<dictItem> dataDict;
 
     for (int i = 0; i < ensembleSize; i++) {
         // report progress every 100 simulations
         if (i % 100 == 0) {
-            std::cout << "for infectionRate: " << infectionRate <<  " --- running simulation " << i << " of " << ensembleSize << std::endl;
+            std::cout << "for contaminationRate: " << contaminationRate <<  " --- running simulation " << i << " of " << ensembleSize << std::endl;
         }
 
-        BachelorProcess process(infectionRate, latticeSize);
+        PiProcess process(contaminationRate, latticeSize);
 
         dataDict.push_back(Application::monteCarlo(process, simulationTime));
     }    
@@ -88,7 +88,7 @@ void Application::simulateBachelorProcess(int simulationTime, int ensembleSize, 
     std::cout << "averaging data" << std::endl;
     std::vector<std::pair<double, double>> avg_data = Application::averageData(dataDict);
     std::cout << "writing data" << std::endl;
-    Application::writeData(avg_data, infectionRate, latticeSize, filePath);
+    Application::writeData(avg_data, contaminationRate, latticeSize, filePath);
 }
 
 template <typename Process> dictItem Application::monteCarlo(Process lattice, int simulationTime)

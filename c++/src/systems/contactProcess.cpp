@@ -1,11 +1,11 @@
 #include "math.h"
 #include "../../include/contactProcess.h"
 
-ContactProcess::ContactProcess(float infectionRate, int systemSize) {
-    this->infectionRate = infectionRate;
+ContactProcess::ContactProcess(float contaminationRate, int systemSize) {
+    this->contaminationRate = contaminationRate;
     this->density = 1;
-    this->normalisation = (1 + infectionRate);
-    this->creationProbability = infectionRate / this->normalisation;
+    this->normalisation = (1 + contaminationRate);
+    this->creationProbability = contaminationRate / this->normalisation;
     this->latticeSize = systemSize;
     this->particleCount = latticeSize;
 

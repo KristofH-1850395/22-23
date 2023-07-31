@@ -1,7 +1,7 @@
 #include "../../include/abstractProcess.h"
 #include "math.h"
 
-int AbstractProcess::getRandomNeighbour(int x) {
+int AbstractProces::getRandomNeighbour(int x) {
     // choose a random d that is either 1 or -1
     int d = rand() % 2;
 
