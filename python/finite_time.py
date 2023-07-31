@@ -27,7 +27,7 @@ data = []
 # lambda_critical = 3.29785 # from literature
 # 
 # ==== BP ====  
-initial_guess = [0.40999546610813586, -0.23271706196367742] # [c, d] = [nu^-1, -alpha]
+initial_guess = [0.40999546610813586, -0.2212275418449664] # [c, d] = [nu^-1, -alpha]
 path_to_data = 'data/bachelor_process/output'
 lambda_critical = 0.65768
 
@@ -59,7 +59,7 @@ def trim_data(df):
     df = df[df['t'] > 10]
 
     # trim the data if the density is zero
-    df = df[df['density'] > 0.01]
+    df = df[df['density'] > 0.001]
 
     return df
 
@@ -119,10 +119,6 @@ def calculate_estimated_residuals(initial_guess):
             # scale the data
             x_j, y_j = scale_data(data_j, delta_j, c, d)
 
-            # plot the interpolation function against the data
-            x_overlapping = []
-            y_overlapping = []
-
             # loop through all the points
             for i in range(len(x_j)):
                 x_ij = x_j[i]
@@ -132,9 +128,6 @@ def calculate_estimated_residuals(initial_guess):
                 if x_ij < x_min or x_ij > x_max:
                     continue
 
-                x_overlapping.append(x_ij)
-                y_overlapping.append(y_ij)
-
                 # calculate the residual
                 sum_residuals += abs(y_ij - f(x_ij)) / (y_ij + f(x_ij))
                 N_over += 1
@@ -143,11 +136,6 @@ def calculate_estimated_residuals(initial_guess):
         return 99 # randomly chosen error code, if no overlapping pairs then we should reject the parameters
 
     return sum_residuals / N_over
-
-    c = intermediate_parameters[0]
-    d = intermediate_parameters[1]
-
-    print(f"current c: {c} and d: {d}", end="\r")
 
 def report_progress(x):
     c = x[0]
@@ -160,15 +148,15 @@ def determine_error(optimal_parameters):
     c_0 = optimal_parameters[0]
     d_0 = optimal_parameters[1]
 
-    c_bounds = calculate_estimated_residuals([c_0 - width * c_0, d_0]), calculate_estimated_residuals([c_0 + width * c_0, d_0])
-    d_bounds = calculate_estimated_residuals([c_0, d_0 - width * d_0]), calculate_estimated_residuals([c_0, d_0 + width * d_0])
+    c_bounds = calculate_estimated_residuals([c_0 - width * abs(c_0), d_0]), calculate_estimated_residuals([c_0 + width * abs(c_0), d_0])
+    d_bounds = calculate_estimated_residuals([c_0, d_0 - width * abs(d_0)]), calculate_estimated_residuals([c_0, d_0 + width * abs(d_0)])
     norm = calculate_estimated_residuals([c_0, d_0])
 
     c_lower, c_upper = np.sqrt(2 * np.log(c_bounds[0] / norm)), np.sqrt(2 * np.log(c_bounds[1] / norm))
     d_lower, d_upper = np.sqrt(2 * np.log(d_bounds[0] / norm)), np.sqrt(2 * np.log(d_bounds[1] / norm))
     
-    delta_c = width * c_0 * abs(c_upper - c_lower)
-    delta_d = width * d_0 * abs(d_upper - d_lower)
+    delta_c = width * abs(c_0) * abs(c_upper - c_lower)
+    delta_d = width * abs(d_0) * abs(d_upper - d_lower)
 
     return delta_c, delta_d
 
@@ -221,7 +209,7 @@ def main():
     # print the results
     print("=== RESULTS ===")
     print(f"alpha = {-d_0} +- {delta_d}")
-    print(f"nu = {1/c_0} +- {delta_c}")
+    print(f"nu = {1/c_0} +- {-1 * (1 / c_0**2) * delta_c}")
     print("===============")
 
     plot_data(data, c_0, d_0)

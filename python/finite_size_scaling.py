@@ -53,7 +53,7 @@ def trim_data(df):
     df = df[df['t'] > 10]
 
     # trim the data if the density is zero
-    df = df[df['density'] > 0.01]
+    df = df[df['density'] > 0.001]
 
     return df
 
@@ -139,15 +139,15 @@ def determine_error(optimal_parameters):
     c_0 = optimal_parameters[0]
     d_0 = optimal_parameters[1]
 
-    c_bounds = calculate_estimated_residuals([c_0 - width * c_0, d_0]), calculate_estimated_residuals([c_0 + width * c_0, d_0])
-    d_bounds = calculate_estimated_residuals([c_0, d_0 - width * d_0]), calculate_estimated_residuals([c_0, d_0 + width * d_0])
+    c_bounds = calculate_estimated_residuals([c_0 - width * abs(c_0), d_0]), calculate_estimated_residuals([c_0 + width * abs(c_0), d_0])
+    d_bounds = calculate_estimated_residuals([c_0, d_0 - width * abs(d_0)]), calculate_estimated_residuals([c_0, d_0 + width * abs(d_0)])
     norm = calculate_estimated_residuals([c_0, d_0])
 
     c_lower, c_upper = np.sqrt(2 * np.log(c_bounds[0] / norm)), np.sqrt(2 * np.log(c_bounds[1] / norm))
     d_lower, d_upper = np.sqrt(2 * np.log(d_bounds[0] / norm)), np.sqrt(2 * np.log(d_bounds[1] / norm))
 
-    delta_c = abs(width * c_0 * (c_upper - c_lower))
-    delta_d = (width * d_0 * (d_upper - d_lower))
+    delta_c = width * abs(c_0) * (c_upper - c_lower)
+    delta_d = width * abs(d_0) * (d_upper - d_lower)
 
     return delta_c, delta_d
 
@@ -165,7 +165,7 @@ def plot_data(data, best_c, best_d):
 
     # determine exponents so we can show them in the title
     z = round(best_c, 2)
-    alpha = round(-best_d / best_c, 2)
+    alpha = round(-best_d / best_c, 3)
 
     # Set label and title
     plt.xlabel(r'$L^{-z} t$', size=20)
@@ -196,10 +196,13 @@ def main():
     # determine the error
     delta_c, delta_d = determine_error([c_0, d_0])
 
+    # error on alpha
+    delta_alpha = ((1/d_0 * delta_c)**2 + (-1 * c_0 * (1/d_0)**2 * delta_d)**2)**(1/2)
+
     # print the results
     print("=== RESULTS ===")
     print(f"z = {c_0} +- {delta_c}")
-    print(f"alpha = {-d_0 / c_0} +- {delta_d / c_0}")
+    print(f"alpha = {-d_0 / c_0} +- {delta_alpha}")
     print("===============")
 
     plot_data(data, c_0, d_0)
