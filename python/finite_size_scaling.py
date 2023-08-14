@@ -11,6 +11,10 @@ from scipy.optimize import minimize
 from scipy import interpolate
 import matplotlib.pyplot as plt
 import numpy as np
+import scienceplots
+
+plt.style.use(['science', 'ieee'])
+plt.rcParams.update({'figure.dpi': '300'})
 
 # create class for data
 class DataSet:
@@ -22,11 +26,13 @@ class DataSet:
 data = []
 
 # ==== CP ====
-# initial_guess = [1.58, -0.2528] # [c, d] = [z, -alpha * z] --- from literature
+# nu_par = 1.6
+# initial_guess = [1.1, 0.159] # [nu_per, alpha]
 # path_to_data = 'data/contact_process/output_finite'
 #
 # ==== BP ====
-initial_guess = [1.7363122606649988, -0.39678649038612845] # [c, d] = [z, -alpha * z]
+nu_par = 2.4
+initial_guess = [1.4, 0.228] # [nu_per, alpha]
 path_to_data = 'data/bachelor_process/output_finite'
 
 def initialisation():
@@ -50,14 +56,14 @@ def initialisation():
 
 def trim_data(df):
     # trim the data for low t
-    df = df[df['t'] > 10]
+    df = df[df['t'] > 1]
 
     # trim the data if the density is zero
     df = df[df['density'] > 0.001]
 
     return df
 
-def scale_data(data, L, c, d):
+def scale_data(data, L, nu_per, alpha):
     x_axis = []
     y_axis = []
 
@@ -65,15 +71,17 @@ def scale_data(data, L, c, d):
         t = data[i][0]
         density = data[i][1]
 
-        x_axis.append(t * (L**-c))
-        y_axis.append(density * (L ** -d))
+        z = nu_par / nu_per
+
+        x_axis.append(t * (L**-z))
+        y_axis.append(density * (L ** (z * alpha)))
 
     return x_axis, y_axis
 
 # returns the interpolation function and the x-axis limits
-def calculate_interpolation_function(data, L, c, d):
+def calculate_interpolation_function(data, L, nu_per, alpha):
     # scale the data
-    x_axis, y_axis = scale_data(data, L, c, d)
+    x_axis, y_axis = scale_data(data, L, nu_per, alpha)
 
     # create interpolation function
     f = interpolate.CubicSpline(x_axis, y_axis, extrapolate=None)
@@ -138,16 +146,11 @@ def determine_error(optimal_parameters):
     width = 0.01
     c_0 = optimal_parameters[0]
     d_0 = optimal_parameters[1]
-
-    c_bounds = calculate_estimated_residuals([c_0 - width * abs(c_0), d_0]), calculate_estimated_residuals([c_0 + width * abs(c_0), d_0])
-    d_bounds = calculate_estimated_residuals([c_0, d_0 - width * abs(d_0)]), calculate_estimated_residuals([c_0, d_0 + width * abs(d_0)])
+    
     norm = calculate_estimated_residuals([c_0, d_0])
-
-    c_lower, c_upper = np.sqrt(2 * np.log(c_bounds[0] / norm)), np.sqrt(2 * np.log(c_bounds[1] / norm))
-    d_lower, d_upper = np.sqrt(2 * np.log(d_bounds[0] / norm)), np.sqrt(2 * np.log(d_bounds[1] / norm))
-
-    delta_c = width * abs(c_0) * (c_upper - c_lower)
-    delta_d = width * abs(d_0) * (d_upper - d_lower)
+    
+    delta_c = width * c_0 * (2 * np.log(calculate_estimated_residuals([c_0 * (1 + width), d_0]) / norm))**(-1/2)
+    delta_d = width * d_0 * (2 * np.log(calculate_estimated_residuals([c_0, d_0 * (1 + width)]) / norm))**(-1/2)
 
     return delta_c, delta_d
 
@@ -163,15 +166,9 @@ def plot_data(data, best_c, best_d):
         # plot the data
         plt.plot(x_axis, y_axis, label=f"L={L}")
 
-    # determine exponents so we can show them in the title
-    z = round(best_c, 2)
-    alpha = round(-best_d / best_c, 3)
-
     # Set label and title
-    plt.xlabel(r'$L^{-z} t$', size=20)
-    plt.ylabel(r'$L^{\alpha z} \rho(t) $', size=20)
-    plt.title(rf'Finite Size Scaling: $\alpha = {alpha}$, $z = {z}$', size=30)    
-    plt.tick_params(axis='both', which='major', labelsize=12)
+    plt.xlabel(r'$L^{-z} t$')
+    plt.ylabel(r'$L^{\alpha z} \rho(t) $')
 
     # set the axis to log scale
     plt.xscale('log')
@@ -180,7 +177,7 @@ def plot_data(data, best_c, best_d):
     # sort both labels and handles by labels, we want to use the numerical value following the equal sign
     handles, labels = plt.gca().get_legend_handles_labels()
     labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: int(t[0].split("=")[1])))
-    plt.legend(handles, labels, fontsize=16)
+    plt.legend(handles, labels)
 
     plt.show()
 
@@ -196,13 +193,10 @@ def main():
     # determine the error
     delta_c, delta_d = determine_error([c_0, d_0])
 
-    # error on alpha
-    delta_alpha = ((1/d_0 * delta_c)**2 + (-1 * c_0 * (1/d_0)**2 * delta_d)**2)**(1/2)
-
     # print the results
     print("=== RESULTS ===")
-    print(f"z = {c_0} +- {delta_c}")
-    print(f"alpha = {-d_0 / c_0} +- {delta_alpha}")
+    print(f"nu_per = {c_0} +- {delta_c}")
+    print(f"alpha = {d_0} +- {delta_d}")
     print("===============")
 
     plot_data(data, c_0, d_0)

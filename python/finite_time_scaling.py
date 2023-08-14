@@ -11,6 +11,10 @@ from scipy.optimize import minimize
 from scipy import interpolate
 import matplotlib.pyplot as plt
 import numpy as np
+import scienceplots
+
+plt.style.use(['science', 'ieee'])
+plt.rcParams.update({'figure.dpi': '300'})
 
 # create class for data
 class DataSet:
@@ -22,12 +26,12 @@ class DataSet:
 data = []
 
 # ==== CP ====
-# initial_guess = [0.58, -0.16] # [c, d] = [nu^-1, -alpha] --- from literature
+# initial_guess = [1.6, 0.159] # nu_par, alpha
 # path_to_data = 'data/contact_process/output'
 # lambda_critical = 3.29785 # from literature
 # 
 # ==== BP ====  
-initial_guess = [0.40999546610813586, -0.2212275418449664] # [c, d] = [nu^-1, -alpha]
+initial_guess = [2.4, 0.224] # [nu_par, alpha]
 path_to_data = 'data/bachelor_process/output'
 lambda_critical = 0.65768
 
@@ -58,12 +62,12 @@ def trim_data(df):
     # trim the data for low t
     df = df[df['t'] > 10]
 
-    # trim the data if the density is zero
-    df = df[df['density'] > 0.001]
+    # trim the data if the density is low
+    df = df[df['density'] > 0.0001]
 
     return df
 
-def scale_data(data, delta, c, d):
+def scale_data(data, delta, nu_par, alpha):
     x_axis = []
     y_axis = []
 
@@ -71,15 +75,16 @@ def scale_data(data, delta, c, d):
         t = data[i][0]
         density = data[i][1]
 
-        x_axis.append((t ** c) * delta)
-        y_axis.append(density * (t ** -d))
+        x_axis.append((t ** (1/nu_par)) * delta)
+        y_axis.append(density * (t ** alpha))
 
     return x_axis, y_axis
 
 # returns the interpolation function and the x-axis limits
-def calculate_interpolation_function(data, delta, c, d):
+# def calculate_interpolation_function(data, delta, c, d):
+def calculate_interpolation_function(data, delta, nu_par, alpha):
     # scale the data
-    x_axis, y_axis = scale_data(data, delta, c, d)
+    x_axis, y_axis = scale_data(data, delta, nu_par, alpha)
 
     if delta < 0:
         # reverse x_axis and y_axis
@@ -147,16 +152,11 @@ def determine_error(optimal_parameters):
     width = 0.01
     c_0 = optimal_parameters[0]
     d_0 = optimal_parameters[1]
-
-    c_bounds = calculate_estimated_residuals([c_0 - width * abs(c_0), d_0]), calculate_estimated_residuals([c_0 + width * abs(c_0), d_0])
-    d_bounds = calculate_estimated_residuals([c_0, d_0 - width * abs(d_0)]), calculate_estimated_residuals([c_0, d_0 + width * abs(d_0)])
-    norm = calculate_estimated_residuals([c_0, d_0])
-
-    c_lower, c_upper = np.sqrt(2 * np.log(c_bounds[0] / norm)), np.sqrt(2 * np.log(c_bounds[1] / norm))
-    d_lower, d_upper = np.sqrt(2 * np.log(d_bounds[0] / norm)), np.sqrt(2 * np.log(d_bounds[1] / norm))
     
-    delta_c = width * abs(c_0) * abs(c_upper - c_lower)
-    delta_d = width * abs(d_0) * abs(d_upper - d_lower)
+    norm = calculate_estimated_residuals([c_0, d_0])
+    
+    delta_c = width * c_0 * (2 * np.log(calculate_estimated_residuals([c_0 * (1 + width), d_0]) / norm))**(-1/2)
+    delta_d = width * d_0 * (2 * np.log(calculate_estimated_residuals([c_0, d_0 * (1 + width)]) / norm))**(-1/2)
 
     return delta_c, delta_d
 
@@ -173,19 +173,13 @@ def plot_data(data, best_c, best_d):
         # determine which multiple of delta_lambda it is
         multiple = int(round(delta/0.0128, 0))
         if multiple > 0:
-            plt.plot(x_axis, y_axis, label=fr"$ \lambda_c + {multiple} \Delta$")
+            plt.plot(x_axis, y_axis, label=fr"$ \lambda_c + {multiple} \delta$")
         else:
-            plt.plot(x_axis, y_axis, label=fr"$ \lambda_c {multiple} \Delta$")
-
-    # determine exponents so we can show them in the title
-    nu = round(1 / best_c, 3)
-    alpha = round(-best_d, 3)
+            plt.plot(x_axis, y_axis, label=fr"$ \lambda_c {multiple} \delta$")
 
     # Set label and title
-    plt.xlabel(r'$t^{1/\nu_{//}} \Delta$', size=20)
-    plt.ylabel(r'$\rho(t) t^\alpha$', size=20)
-    plt.title(rf'Scaling Relation of the Density: $\nu = {nu}$, $\alpha = {alpha}$', size=30)
-    plt.tick_params(axis='both', which='major', labelsize=12)
+    plt.xlabel(r'$t^{1/\nu_{//}} \Delta$')
+    plt.ylabel(r'$\rho(t) t^\alpha$')
     
     # sort both labels and handles by labels
     handles, labels = plt.gca().get_legend_handles_labels()
@@ -208,8 +202,8 @@ def main():
 
     # print the results
     print("=== RESULTS ===")
-    print(f"alpha = {-d_0} +- {delta_d}")
-    print(f"nu = {1/c_0} +- {-1 * (1 / c_0**2) * delta_c}")
+    print(f"alpha = {d_0} +/- {delta_d}")
+    print(f"nu_par = {c_0} +/- {delta_c}")
     print("===============")
 
     plot_data(data, c_0, d_0)

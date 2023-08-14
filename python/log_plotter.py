@@ -10,28 +10,32 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stats
+import scienceplots
 
-def configure_plot(ax):
+plt.style.use(['science', 'ieee'])
+plt.rcParams.update({'figure.dpi': '300'})
+
+def configure_plot(ax):    
     ax.set_xlabel('t')
     ax.set_ylabel(r'$\rho(t)$')
-    ax.set_title('Density of the system as a function of time')    
-
-    #set the size of the labels
-    ax.tick_params(axis='both', which='major', labelsize=12)
-    ax.xaxis.label.set_size(20)
-    ax.yaxis.label.set_size(20)
-    ax.title.set_size(30)
-
-    plt.legend(fontsize=16)
-
-    # set the axis to log scale
-    ax.set_xscale('log')
-    ax.set_xlim(1e-2, 1e3)
-    ax.set_yscale('log')
-    ax.set_ylim(1e-3, 2e0)
-
+    # ax.set_title('Contact Process - Density vs. Time')    
+    
     # add a legend
     ax.legend()
+
+    # set the axis to log scale for the CP
+    # ax.set_xscale('log')
+    # ax.set_xlim(1e0, 1e2)
+
+    # ax.set_yscale('log')
+    # ax.set_ylim(0.22, 0.69)
+
+    # set the axis to log scale for the PP
+    ax.set_xscale('log')
+    ax.set_xlim(1e0, 1e3)
+
+    ax.set_yscale('log')
+    ax.set_ylim(0.1, 1.2)
 
 def plotter():
     # get the path of the data folder
@@ -39,7 +43,7 @@ def plotter():
 
     # dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data for CP
     # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
-    dir_path = os.path.join(root_path, 'data/bachelor_process/output/') # regular data for BP
+    dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for PP
     # dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for finite size scaling
 
     # Get all CSV files in the directory
@@ -100,7 +104,7 @@ def plotter():
     y_exp = np.exp(y)
 
     # plot the line in black
-    label = f"y = {round(alpha, 3)}x + {round(b, 2)}"
+    label = f"linear fit"
     ax.plot(x_exp, y_exp, color='black', label=label)
     print(f"best alpha: {best_alpha} with r squared: {best_r_squared} and b: {best_b} for lambda: {critical_lambda}")
 
