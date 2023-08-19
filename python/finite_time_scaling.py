@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scienceplots
 
-plt.style.use(['science', 'ieee'])
+plt.style.use(['science', 'ieee', 'no-latex'])
 plt.rcParams.update({'figure.dpi': '300'})
 
 # create class for data
@@ -31,9 +31,9 @@ data = []
 # lambda_critical = 3.29785 # from literature
 # 
 # ==== BP ====  
-initial_guess = [2.4, 0.224] # [nu_par, alpha]
-path_to_data = 'data/bachelor_process/output'
-lambda_critical = 0.65768
+initial_guess = [3.22, 0.29] # [nu_par, alpha]
+path_to_data = 'data/bachelor_process/test'
+lambda_critical = 0.63
 
 def initialisation():
     # get the path of the data folder
@@ -60,7 +60,7 @@ def initialisation():
 
 def trim_data(df):
     # trim the data for low t
-    df = df[df['t'] > 10]
+    df = df[df['t'] > 100]
 
     # trim the data if the density is low
     df = df[df['density'] > 0.0001]

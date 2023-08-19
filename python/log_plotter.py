@@ -12,7 +12,7 @@ import numpy as np
 import scipy.stats as stats
 import scienceplots
 
-plt.style.use(['science', 'ieee'])
+plt.style.use(['science', 'ieee', 'no-latex'])
 plt.rcParams.update({'figure.dpi': '300'})
 
 def configure_plot(ax):    
@@ -32,10 +32,10 @@ def configure_plot(ax):
 
     # set the axis to log scale for the PP
     ax.set_xscale('log')
-    ax.set_xlim(1e0, 1e3)
+    ax.set_xlim(2*1e0, 1e4)
 
     ax.set_yscale('log')
-    ax.set_ylim(0.1, 1.2)
+    ax.set_ylim(0.03, 1.2)
 
 def plotter():
     # get the path of the data folder
@@ -43,8 +43,10 @@ def plotter():
 
     # dir_path = os.path.join(root_path, 'data/contact_process/output') # regular data for CP
     # dir_path = os.path.join(root_path, 'data/contact_process/output_finite') # for finite size scaling
-    dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for PP
+    # dir_path = os.path.join(root_path, 'data/bachelor_process/output') # regular data for PP
     # dir_path = os.path.join(root_path, 'data/bachelor_process/output_finite') # for finite size scaling
+
+    dir_path = os.path.join(root_path, 'data/bachelor_process/test') # for testing
 
     # Get all CSV files in the directory
     csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
@@ -53,7 +55,8 @@ def plotter():
     best_r_squared = 0
     best_alpha = 0
     best_b = 0
-    critical_lambda = 0 
+    critical_lambda = 0
+    fit_list = []
     
      #create the figure and the axes
     fig, ax = plt.subplots()
@@ -71,12 +74,15 @@ def plotter():
         infection_rate = float(m.group(1))
         label = r'$\lambda = $' + m.group(1)
 
+        # divide the density data by 0.2875842775118721
+        scaled_density = data['density']/0.2875842775118721
+
         # add the dataframe to the plot
         ax.plot(data['t'], data['density'], label=label)
 
         # we only want to fit the data for the interval (1, 1000)
         for i in data['t']:
-            if i > 0:
+            if i > 100:
                 # get index of i
                 index = data['t'].tolist().index(i)
                 t = np.log(data['t'][index:])
@@ -93,6 +99,9 @@ def plotter():
             best_alpha = slope
             best_b = intercept
             critical_lambda = infection_rate
+
+        # save the values and the lambda
+        fit_list.append([slope, intercept, r_squared, infection_rate])
         
     # create linespace for x values
     x = np.linspace(-1e2, 1e2, 1000)
@@ -103,9 +112,14 @@ def plotter():
     x_exp = np.exp(x)
     y_exp = np.exp(y)
 
-    # plot the line in black
+    # print each fit in the terminal
+    print("Fits:")
+    for fit in fit_list:
+        print(f"alpha: {fit[0]} with r squared: {fit[2]} and b: {fit[1]} for lambda: {fit[3]}")
+    
+    # plot the best fit in black
     label = f"linear fit"
-    ax.plot(x_exp, y_exp, color='black', label=label)
+    # ax.plot(x_exp, y_exp, color='black', label=label)
     print(f"best alpha: {best_alpha} with r squared: {best_r_squared} and b: {best_b} for lambda: {critical_lambda}")
 
     configure_plot(ax)

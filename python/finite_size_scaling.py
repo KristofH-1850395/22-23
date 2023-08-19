@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scienceplots
 
-plt.style.use(['science', 'ieee'])
+plt.style.use(['science', 'ieee', 'no-latex'])
 plt.rcParams.update({'figure.dpi': '300'})
 
 # create class for data
@@ -31,9 +31,9 @@ data = []
 # path_to_data = 'data/contact_process/output_finite'
 #
 # ==== BP ====
-nu_par = 2.4
-initial_guess = [1.4, 0.228] # [nu_per, alpha]
-path_to_data = 'data/bachelor_process/output_finite'
+nu_par = 3.2
+initial_guess = [1.83, 0.29] # [nu_per, alpha]
+path_to_data = 'data/bachelor_process/test/finite_size'
 
 def initialisation():
     # get the path of the data folder

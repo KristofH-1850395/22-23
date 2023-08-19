@@ -1,0 +1,2 @@
+simulation time: 1000
+ensemble size: 5000
