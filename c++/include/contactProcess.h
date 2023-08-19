@@ -3,7 +3,6 @@
     #include "abstractProcess.h"
 #endif
 
-
 #include <vector>
 
 class ContactProcess: public AbstractProcess {

@@ -1,5 +1,6 @@
 #include "../../include/piProcess.h"
 #include "math.h"
+#include <iostream>
 
 PiProcess::PiProcess(float infectionRate, int systemSize) {
     // note for the reader: one A particle is equivalent to two B particles, as such we have density between 0 and 2
@@ -18,11 +19,22 @@ PiProcess::PiProcess(float infectionRate, int systemSize) {
 }
 
 void PiProcess::create(int x, int y) {
+    // calculate the old number of particles modulo 2
+    int old_mod = (this->particleCountA * 2 + this->particleCountB) % 2;
+
     // create an A particle if A or B neighbours a vacant site
     if ((this->lattice[x] == 'A' || this->lattice[x] == 'B') && this->lattice[y] == '0') {
         this->lattice[y] = 'A';
         this->particleCountA++;
     }
+
+    
+    // calculate the new number of particles modulo 2
+    int new_mod = (this->particleCountA * 2 + this->particleCountB) % 2;
+
+    //DEBUG:: print the difference between the old and new mod
+    if (old_mod != new_mod)
+        std::cout << "CREATION EVENT ----- old mod: " << old_mod << " new mod: " << new_mod << std::endl;
 
     updateDensity();
 }
@@ -37,9 +49,16 @@ void PiProcess::annihilate(int x) {
 }
 
 void PiProcess::mix(int x, int y) {
+    // calculate the old number of particles modulo 2
+    int old_mod = (this->particleCountA * 2 + this->particleCountB) % 2;
+
     if (this->lattice[x] == 'A' && this->lattice[y] == 'B') {
         this->lattice[x] = 'B';
         this->lattice[y] = 'A';
+    }
+    else if (this->lattice[x] == 'B' && this->lattice[y] == 'A') {
+        this->lattice[x] = 'A';
+        this->lattice[y] = 'B';
     }
     else if (this->lattice[x] == 'A' && this->lattice[y] == 'A') {
         this->lattice[x] = 'B';
@@ -53,6 +72,13 @@ void PiProcess::mix(int x, int y) {
         this->particleCountA += 2;
         this->particleCountB -= 2;
     }
+
+    // calculate the new number of particles modulo 2
+    int new_mod = (this->particleCountA * 2 + this->particleCountB) % 2;
+
+    //DEBUG:: print the difference between the old and new mod
+    if (old_mod != new_mod)
+        std::cout << "MIXING EVENT --- old mod: " << old_mod << " new mod: " << new_mod << std::endl;
 
     updateDensity();
 }

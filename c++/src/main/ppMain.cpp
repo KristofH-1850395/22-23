@@ -33,17 +33,20 @@ int main(int argc, char *argv[]) {
     metadata.close();
 
     // run the simulation for contaminationRate +- a delta
-    double delta = 0.0128;
-    int range = 10;
-
+    int range = 4;
     int iteration = 1;
 
-    for (double lambda = contaminationRate - (delta * range); lambda <= contaminationRate + (delta * range); lambda += delta) {
-       std::cout << "Iteration " << iteration << "/" << (2 * range) + 1 << std::endl;
-        Application::simulatePiProcess(simulationTime, ensembleSize, lambda, 1000, outputPath);
+    float diff = ((contaminationRate + 0.01) - (contaminationRate - 0.01)) / 2;
+    float delta = diff / range;
 
-        iteration++;
-    }
+    // for (double lambda = contaminationRate - (delta * range); lambda <= contaminationRate + (delta * range); lambda += delta) {
+    //     std::cout << "Iteration " << iteration << "/" << range * 2 << std::endl;
+    //     Application::simulatePiProcess(simulationTime, ensembleSize, lambda, 1000, outputPath);
+
+    //     iteration++;
+    // }
+
+    Application::simulatePiProcess(simulationTime, ensembleSize, contaminationRate, 1000, outputPath);
 
     return 0;
 }

@@ -96,7 +96,7 @@ template <typename Process> dictItem Application::monteCarlo(Process lattice, in
     // define the duration of a MC step and set meassuring parameters
     double mcDuration = 1 / (lattice.getLatticeSize() * lattice.getNormalisationFactor());
     double time = 0;
-    double measuringInterval = simulationTime / 1000.0; // we don't want too many data points
+    double measuringInterval = double(simulationTime / (simulationTime * 10));
     double timeSinceMeasurement = 0;
 
     // add the initial density to the dataDict    

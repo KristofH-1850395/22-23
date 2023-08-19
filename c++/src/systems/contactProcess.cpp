@@ -1,5 +1,5 @@
-#include "math.h"
 #include "../../include/contactProcess.h"
+#include "math.h"
 
 ContactProcess::ContactProcess(float contaminationRate, int systemSize) {
     this->contaminationRate = contaminationRate;
